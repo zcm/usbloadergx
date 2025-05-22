@@ -23,6 +23,7 @@
  *
  * for WiiXplorer 2010
  ***************************************************************************/
+#include <limits.h>
 #include <unistd.h>
 #include <malloc.h>
 #include <ctype.h>
@@ -111,12 +112,12 @@ void OggDecoder::ParseComments()
 {
 	vorbis_comment *ogg_comment = ov_comment(&ogg_file, -1);
 
-	int loop_length = -1;
+	double temp_start = -1, temp_length = -1, temp_end = -1;
 
 	for (int i = 0; i < ogg_comment->comments; ++i)
 	{
 		char *s, *comment = ogg_comment->user_comments[i];
-		int *target;
+		double *target;
 
 		if (strncasecmp(comment, "LOOP", 4) == 0)
 		{
@@ -128,17 +129,17 @@ void OggDecoder::ParseComments()
 
 			if (strncasecmp(comment, "START=", 6) == 0)
 			{
-				target = &loop_start;
+				target = &temp_start;
 				comment += 6;
 			}
 			else if (strncasecmp(comment, "LENGTH=", 7) == 0)
 			{
-				target = &loop_length;
+				target = &temp_length;
 				comment += 7;
 			}
 			else if (strncasecmp(comment, "END=", 4) == 0)
 			{
-				target = &loop_end;
+				target = &temp_end;
 				comment += 4;
 			}
 			else
@@ -152,26 +153,37 @@ void OggDecoder::ParseComments()
 			{
 				*target = atoi(comment);
 			}
+			else if (*s == '.')
+			{
+				// Interpret decimals as seconds instead of samples and convert
+				for (char *frac = ++s; isdigit(*s) && s - frac < 16; ++s);
+
+				if (!*s)
+					*target = atof(comment) * ogg_info->rate;
+			}
 		}
 	}
 
 	int total_samples = ov_pcm_total(&ogg_file, -1);
 
-	if (loop_length > 0)
+	if (temp_length > 0)
 	{
-		if (loop_end < 0 && loop_start >= 0)
+		if (temp_end < 0 && temp_start >= 0)
 		{
-			loop_end = loop_start + loop_length;
+			temp_end = temp_start + temp_length;
 		}
-		else if (loop_start < 0 && loop_end > 0)
+		else if (temp_start < 0 && temp_end > 0)
 		{
-			loop_start = loop_end - loop_length;
+			temp_start = temp_end - temp_length;
 		}
 	}
-	else if (loop_end < 0 || loop_end > total_samples)
+	else if (temp_end < 0 || temp_end > total_samples)
 	{
-		loop_end = total_samples;
+		temp_end = total_samples;
 	}
+
+	loop_start = temp_start > INT_MAX ? -1 : (int) (temp_start + 0.5);
+	loop_end = temp_end > INT_MAX ? -1 : (int) (temp_end + 0.5);
 
 	if (loop_start >= 0 && loop_start < loop_end)
 	{
