@@ -118,21 +118,25 @@ void OggDecoder::ParseComments()
 		char *s, *comment = ogg_comment->user_comments[i];
 		int *target;
 
-		if (strncmp(comment, "LOOP", 4) == 0)
+		if (strncasecmp(comment, "LOOP", 4) == 0)
 		{
 			comment += 4;
 
-			if (strncmp(comment, "START=", 6) == 0)
+			if (*comment == '_') {
+				++comment;
+			}
+
+			if (strncasecmp(comment, "START=", 6) == 0)
 			{
 				target = &loop_start;
 				comment += 6;
 			}
-			else if (strncmp(comment, "LENGTH=", 7) == 0)
+			else if (strncasecmp(comment, "LENGTH=", 7) == 0)
 			{
 				target = &loop_length;
 				comment += 7;
 			}
-			else if (strncmp(comment, "END=", 4) == 0)
+			else if (strncasecmp(comment, "END=", 4) == 0)
 			{
 				target = &loop_end;
 				comment += 4;
@@ -151,6 +155,8 @@ void OggDecoder::ParseComments()
 		}
 	}
 
+	int total_samples = ov_pcm_total(&ogg_file, -1);
+
 	if (loop_length > 0)
 	{
 		if (loop_end < 0 && loop_start >= 0)
@@ -162,9 +168,12 @@ void OggDecoder::ParseComments()
 			loop_start = loop_end - loop_length;
 		}
 	}
+	else if (loop_end < 0 || loop_end > total_samples)
+	{
+		loop_end = total_samples;
+	}
 
-	if (loop_start >= 0 && loop_start < loop_end
-			&& loop_start < ov_pcm_total(&ogg_file, -1))
+	if (loop_start >= 0 && loop_start < loop_end)
 	{
 		int frame_size = GetFrameSize();
 
