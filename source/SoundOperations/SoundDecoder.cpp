@@ -129,7 +129,7 @@ void SoundDecoder::Decode()
 		{
 			if(Loop)
 			{
-				Rewind();
+				RestartLoop();
 				continue;
 			}
 			else
