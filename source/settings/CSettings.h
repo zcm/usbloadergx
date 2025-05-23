@@ -256,7 +256,6 @@ class CSettings
 		bool FindConfig();
 
 		void ParseLine(char *line);
-		void TrimLine(char *dest, char *src, int size);
 };
 
 extern CSettings Settings;

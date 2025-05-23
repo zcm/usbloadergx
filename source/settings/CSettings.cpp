@@ -1542,33 +1542,30 @@ bool CSettings::FindConfig()
 
 void CSettings::ParseLine(char *line)
 {
-	char temp[1024], name[1024], value[1024];
+	// ensuring the first character isn't a space lets us loop efficiently later
+	if (*line == ' ' || *line == '=') return;
 
-	snprintf(temp, sizeof(temp), "%s", line);
-
-	char * eq = strchr(temp, '=');
+	char *eq = strchr(line, '=');
 
 	if (!eq) return;
 
-	*eq = 0;
+	char *value = eq + 1;
 
-	this->TrimLine(name, temp, sizeof(name));
-	this->TrimLine(value, eq + 1, sizeof(value));
+	while (*--eq == ' ');
 
-	this->SetSetting(name, value);
-}
+	*(eq + 1) = '\0';  // line becomes just the setting name
 
-void CSettings::TrimLine(char *dest, char *src, int size)
-{
-	int len;
-	while (*src == ' ')
-		src++;
-	len = strlen(src);
-	while (len > 0 && strchr(" \r\n", src[len - 1]))
-		len--;
-	if (len >= size) len = size - 1;
-	strncpy(dest, src, len);
-	dest[len] = 0;
+	while (*value == ' ')
+		++value;
+
+	char *end = strchr(value, '\0') - 1;
+
+	while (*end == ' ' || *end == '\r' || *end == '\n')
+		--end;
+
+	*(end + 1) = '\0';
+
+	this->SetSetting(line, value);
 }
 
 //! Get language code from the selected language file
