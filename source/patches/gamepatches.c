@@ -1730,6 +1730,7 @@ static GXRModeObj *vmodes[] = {
     &TVEurgb60Hz480ProgSoft_RVL,
     &TVEurgb60Hz480ProgAa_RVL};
 
+#ifndef NO_DEBUG
 static const char *vmodes_name[] = {
     "TVNtsc240Ds",
     "TVNtsc240DsAa",
@@ -1772,6 +1773,7 @@ static const char *vmodes_name[] = {
     "TVEurgb60Hz480Prog",
     "TVEurgb60Hz480ProgSoft",
     "TVEurgb60Hz480ProgAa"};
+#endif
 
 static GXRModeObj *PAL2NTSC[] = {
     &TVMpal240Int_RVL, &TVNtsc240Int,
@@ -1937,7 +1939,7 @@ static bool Search_and_patch_Video_Modes(u8 *Address, u32 Size, GXRModeObj *Tabl
 {
     u8 *Addr = (u8 *)Address;
     bool found = 0;
-    u32 i, j;
+    u32 i;
 
     while (Size >= sizeof(GXRModeObj))
     {
@@ -1945,6 +1947,8 @@ static bool Search_and_patch_Video_Modes(u8 *Address, u32 Size, GXRModeObj *Tabl
         {
             if (compare_videomodes(Table[i], (GXRModeObj *)Addr))
             {
+#ifndef NO_DEBUG
+                u32 j;
                 u8 current_vmode = 0;
                 u8 target_vmode = 0;
                 for (j = 0; j < sizeof(vmodes) / sizeof(vmodes[0]); j++)
@@ -1965,6 +1969,8 @@ static bool Search_and_patch_Video_Modes(u8 *Address, u32 Size, GXRModeObj *Tabl
                 }
 
                 gprintf("Video mode found in dol: %s, replaced by: %s \n", vmodes_name[current_vmode], vmodes_name[target_vmode]);
+#endif
+
                 found = 1;
                 patch_videomode((GXRModeObj *)Addr, Table[i + 1]);
                 Addr += (sizeof(GXRModeObj) - 4);
@@ -2043,6 +2049,8 @@ static bool Search_and_patch_Video_To(void *Address, u32 Size, GXRModeObj *Table
     u8 *Addr = (u8 *)Address;
     bool found = 0;
     u32 i;
+
+#ifndef NO_DEBUG
     u8 target_vmode = 0;
     for (i = 0; i < sizeof(vmodes) / sizeof(vmodes[0]); i++)
     {
@@ -2052,6 +2060,7 @@ static bool Search_and_patch_Video_To(void *Address, u32 Size, GXRModeObj *Table
             break;
         }
     }
+#endif
 
     while (Size >= sizeof(GXRModeObj))
     {
@@ -2061,6 +2070,7 @@ static bool Search_and_patch_Video_To(void *Address, u32 Size, GXRModeObj *Table
             (((GXRModeObj *)Addr)->aa == 0 || ((GXRModeObj *)Addr)->aa == 1)
         )
         {
+#ifndef NO_DEBUG
             // display found video mode patterns
             GXRModeObj *vidmode = (GXRModeObj *)Addr;
             gprintf("GXRModeObj \t%08x %04x %04x %04x %04x %04x %04x %04x %08x %04x %04x "
@@ -2074,6 +2084,7 @@ static bool Search_and_patch_Video_To(void *Address, u32 Size, GXRModeObj *Table
                     vidmode->sample_pattern[3][1], vidmode->sample_pattern[4][1], vidmode->sample_pattern[5][1], vidmode->sample_pattern[6][1], vidmode->sample_pattern[7][1],
                     vidmode->sample_pattern[8][1], vidmode->sample_pattern[9][1], vidmode->sample_pattern[10][1], vidmode->sample_pattern[11][1],
                     vidmode->vfilter[0], vidmode->vfilter[1], vidmode->vfilter[2], vidmode->vfilter[3], vidmode->vfilter[4], vidmode->vfilter[5], vidmode->vfilter[6]);
+#endif
 
             found = 0;
             for (i = 0; i < sizeof(vmodes) / sizeof(vmodes[0]); i++)

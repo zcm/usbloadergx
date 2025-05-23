@@ -9,11 +9,13 @@ endif
 
 include $(DEVKITPPC)/wii_rules
 #---------------------------------------------------------------------------------
+# USE is the type of build to perform (debug, release)
 # TARGET is the name of the output
 # BUILD is the directory where object files & intermediate files will be placed
 # SOURCES is a list of directories containing source code
 # INCLUDES is a list of directories containing extra header files
 #---------------------------------------------------------------------------------
+USE		?=	debug
 TARGET		:=	boot
 BUILD		:=	build
 SOURCES		:=	source \
@@ -60,9 +62,20 @@ INCLUDES	:=	source
 #---------------------------------------------------------------------------------
 # options for code generation
 #---------------------------------------------------------------------------------
-CFLAGS		=	-g -ggdb -O2 -Wall -Wno-multichar -Wno-unused-parameter -Wextra $(MACHDEP) $(INCLUDE) -D_GNU_SOURCE
+COMMON		=	-pipe -O2
+
+ifeq ($(USE), debug)
+	COMMON += -g -ggdb
+else ifeq ($(USE), release)
+	COMMON += -flto=auto -Werror=odr -Werror=lto-type-mismatch -Werror=strict-aliasing
+	CFLAGS += -DNO_DEBUG
+else
+$(error Invalid USE flag: $(USE))
+endif
+
+CFLAGS		=	$(COMMON) -Wall -Wno-multichar -Wno-unused-parameter -Wextra $(MACHDEP) $(INCLUDE) -D_GNU_SOURCE -DNO_DEBUG
 CXXFLAGS	=	$(CFLAGS)
-LDFLAGS		=	-g -ggdb $(MACHDEP) -Wl,-Map,$(notdir $@).map,--section-start,.init=0x80B00000,-wrap,malloc,-wrap,free,-wrap,memalign,-wrap,calloc,-wrap,realloc,-wrap,malloc_usable_size,-wrap,time
+LDFLAGS		=	$(COMMON) $(MACHDEP) -Wl,-Map,$(notdir $@).map,--section-start,.init=0x80B00000,-wrap,malloc,-wrap,free,-wrap,memalign,-wrap,calloc,-wrap,realloc,-wrap,malloc_usable_size,-wrap,time
 
 ifeq ($(BUILDMODE),channel)
 CFLAGS += -DFULLCHANNEL

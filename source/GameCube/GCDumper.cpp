@@ -234,6 +234,8 @@ s32 GCDumper::InstallGame(const char *installpath, u32 game, const char *install
 		return -2;
 	}
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-variable"
 	u32 Disc = *(u8*)(ReadBuffer+0x06);
 	u32 ApploaderSize = *(u32*)(ReadBuffer+0x400);
 	u32 DOLOffset = *(u32*)(ReadBuffer+0x420);
@@ -243,6 +245,7 @@ s32 GCDumper::InstallGame(const char *installpath, u32 game, const char *install
 	u32 DataSize = *(u32*)(ReadBuffer+0x438);
 	u32 DOLSize = FSTOffset - DOLOffset;
 	u32 DiscSize = DataSize + GamePartOffset;
+#pragma GCC diagnostic pop
 
 	u8 *FSTBuffer = (u8 *)memalign(32, ALIGN32(FSTSize));
 	if(!FSTBuffer) {
