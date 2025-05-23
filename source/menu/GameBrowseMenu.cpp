@@ -1000,12 +1000,35 @@ int GameBrowseMenu::MainLoop()
 			Settings.Save();
 			DeviceHandler::Instance()->UnMountSD();
 			DeviceHandler::Instance()->MountSD();
-			gprintf("\tLoading config...%s\n", Settings.Load() ? "done" : "failed");
-			gprintf("\tLoading language...%s\n", Settings.LoadLanguage(Settings.language_path, CONSOLE_DEFAULT) ? "done" : "failed");
-			gprintf("\tLoading game settings...%s\n", GameSettings.Load(Settings.ConfigPath) ? "done" : "failed");
-			gprintf("\tLoading game statistics...%s\n", GameStatistics.Load(Settings.ConfigPath) ? "done" : "failed");
-			gprintf("\tLoading font...%s\n", Theme::LoadFont(Settings.theme_path) ? "done" : "failed (using default)");
-			gprintf("\tLoading theme...%s\n", Theme::Load(Settings.theme) ? "done" : "failed (using default)");
+
+#ifdef NO_DEBUG
+#define STORE_LOAD_RESULT(x) x
+#else
+#define STORE_LOAD_RESULT(x) load_result = x
+
+			bool load_result;
+#endif
+
+			STORE_LOAD_RESULT(Settings.Load());
+			gprintf("\tLoading config...%s\n", load_result ? "done" : "failed");
+
+			STORE_LOAD_RESULT(Settings.LoadLanguage(Settings.language_path, CONSOLE_DEFAULT));
+			gprintf("\tLoading language...%s\n", load_result ? "done" : "failed");
+
+			STORE_LOAD_RESULT(GameSettings.Load(Settings.ConfigPath));
+			gprintf("\tLoading game settings...%s\n", load_result ? "done" : "failed");
+
+			STORE_LOAD_RESULT(GameStatistics.Load(Settings.ConfigPath));
+			gprintf("\tLoading game statistics...%s\n", load_result ? "done" : "failed");
+
+			STORE_LOAD_RESULT(Theme::LoadFont(Settings.theme_path));
+			gprintf("\tLoading font...%s\n", load_result ? "done" : "failed (using default)");
+
+			STORE_LOAD_RESULT(Theme::Load(Settings.theme));
+			gprintf("\tLoading theme...%s\n", load_result ? "done" : "failed (using default)");
+
+#undef STORE_LOAD_RESULT
+
 			bgMusic->Resume();
 			gameList.FilterList();
 			ReloadBrowser();

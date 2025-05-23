@@ -425,7 +425,9 @@ int GameBooter::BootGame(struct discHdr *gameHdr)
 					++cios;
 			}
 
+#ifndef NO_DEBUG
 			bool sdEmuNAND = false;
+#endif
 			gprintf("Requested IOS: %d\n", requestedIOS);
 			// Workaround for SpongeBobs Boating Bash
 			if (memcmp(gameHeader.id, "SBV", 3) == 0)
@@ -449,7 +451,9 @@ int GameBooter::BootGame(struct discHdr *gameHdr)
 					if (cios->base < 56 || cios->base > 60)
 					{
 						cios = d2x_list.erase(cios);
+#ifndef NO_DEBUG
 						sdEmuNAND = true;
+#endif
 					}
 					else
 						++cios;

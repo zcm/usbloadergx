@@ -335,12 +335,32 @@ int StartUpProcess::Execute(bool quickGameBoot)
 	}
 
 	SetTextf("Loading config files\n");
-	gprintf("\tLoading config...%s\n", Settings.Load() ? "done" : "failed");
-	gprintf("\tLoading language...%s\n", Settings.LoadLanguage(Settings.language_path, CONSOLE_DEFAULT) ? "done" : "failed");
-	gprintf("\tLoading game settings...%s\n", GameSettings.Load(Settings.ConfigPath) ? "done" : "failed");
-	gprintf("\tLoading game statistics...%s\n", GameStatistics.Load(Settings.ConfigPath) ? "done" : "failed");
-	gprintf("\tLoading game categories...%s\n", GameCategories.Load(Settings.ConfigPath) ? "done" : "failed");
-	gprintf("\tLoading cached titles...%s\n", GameTitles.ReadCachedTitles(Settings.titlestxt_path) ? "done" : "failed (using default)");
+
+#ifdef NO_DEBUG
+#define STORE_LOAD_RESULT(x) x
+#else
+#define STORE_LOAD_RESULT(x) load_result = x
+
+	bool load_result;
+#endif  /* NO_DEBUG */
+
+	STORE_LOAD_RESULT(Settings.Load());
+	gprintf("\tLoading config...%s\n", load_result ? "done" : "failed");
+
+	STORE_LOAD_RESULT(Settings.LoadLanguage(Settings.language_path, CONSOLE_DEFAULT));
+	gprintf("\tLoading language...%s\n", load_result ? "done" : "failed");
+
+	STORE_LOAD_RESULT(GameSettings.Load(Settings.ConfigPath));
+	gprintf("\tLoading game settings...%s\n", load_result ? "done" : "failed");
+
+	STORE_LOAD_RESULT(GameStatistics.Load(Settings.ConfigPath));
+	gprintf("\tLoading game statistics...%s\n", load_result ? "done" : "failed");
+
+	STORE_LOAD_RESULT(GameCategories.Load(Settings.ConfigPath));
+	gprintf("\tLoading game categories...%s\n", load_result ? "done" : "failed");
+
+	STORE_LOAD_RESULT(GameTitles.ReadCachedTitles(Settings.titlestxt_path));
+	gprintf("\tLoading cached titles...%s\n", load_result ? "done" : "failed (using default)");
 
 	// Some settings need to be enabled to boot directly into games
 	gprintf("Quick game boot: %s\n", quickGameBoot ? "yes" : "no");
@@ -437,8 +457,13 @@ int StartUpProcess::Execute(bool quickGameBoot)
 		Settings.GameWindowMode = GAMEWINDOW_DISC;
 	}
 
-	gprintf("\tLoading font...%s\n", Theme::LoadFont(Settings.ConfigPath) ? "done" : "failed (using default)");
-	gprintf("\tLoading theme...%s\n", Theme::Load(Settings.theme) ? "done" : "failed (using default)");
+	STORE_LOAD_RESULT(Theme::LoadFont(Settings.ConfigPath));
+	gprintf("\tLoading font...%s\n", load_result ? "done" : "failed (using default)");
+
+	STORE_LOAD_RESULT(Theme::Load(Settings.theme));
+	gprintf("\tLoading theme...%s\n", load_result ? "done" : "failed (using default)");
+
+#undef STORE_LOAD_RESULT
 
 	//! Init the rest of the system
 	Sys_Init();

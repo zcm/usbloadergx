@@ -23,6 +23,10 @@ typedef void (*app_entry)(void(**init)(void(*report)(const char *fmt, ...)), int
 /* Apploader pointers */
 static u8 *appldr = (u8 *) 0x81200000;
 
+#ifdef NO_DEBUG
+static void noprintf(const char *fmt, ...) {}
+#endif
+
 /* Constants */
 #define APPLDR_OFFSET   0x2440
 
@@ -58,7 +62,11 @@ s32 Apploader_Run(entry_point *entry, char * dolpath, u8 alternatedol, u32 alter
 	appldr_entry(&appldr_init, &appldr_main, &appldr_final);
 
 	/* Initialize apploader */
+#ifdef NO_DEBUG
+	appldr_init(noprintf);
+#else
 	appldr_init(gprintf);
+#endif
 
 	for (;;)
 	{
