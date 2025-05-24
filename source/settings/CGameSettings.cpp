@@ -241,336 +241,81 @@ bool CGameSettings::Save()
 	return true;
 }
 
-bool CGameSettings::SetSetting(GameCFG & game, const char *name, const char *value)
+void CGameSettings::ApplySettings(
+		GameCFG & game, std::unordered_map<std::string, std::unique_ptr<std::string>>& settings)
 {
-	if (strcmp(name, "video") == 0)
-	{
-		game.video = atoi(value);
-		return true;
-	}
-	else if (strcmp(name, "videoPatchDol") == 0)
-	{
-		game.videoPatchDol = atoi(value);
-		return true;
-	}
-	else if (strcmp(name, "patchFix480p") == 0)
-	{
-		game.patchFix480p = atoi(value);
-		return true;
-	}
-	else if (strcmp(name, "deflicker") == 0)
-	{
-		game.deflicker = atoi(value);
-		return true;
-	}
-	else if(strcmp(name, "videowidth") == 0)
-	{
-		game.videoWidth = atoi(value);
-		return true;
-	}
-	else if(strcmp(name, "aspectratio") == 0)
-	{
-		game.aspectratio = atoi(value);
-		return true;
-	}
-	else if(strcmp(name, "language") == 0)
-	{
-		game.language = atoi(value);
-		return true;
-	}
-	else if(strcmp(name, "ocarina") == 0)
-	{
-		game.ocarina = atoi(value);
-		return true;
-	}
-	else if(strcmp(name, "vipatch") == 0)
-	{
-		game.vipatch = atoi(value);
-		return true;
-	}
-	else if(strcmp(name, "ios") == 0)
-	{
-		game.ios = atoi(value);
-		return true;
-	}
-	else if(strcmp(name, "autoios") == 0)
-	{
-		game.autoios = atoi(value);
-		return true;
-	}
-	else if(strcmp(name, "parentalcontrol") == 0)
-	{
-		game.parentalcontrol = atoi(value);
-		return true;
-	}
-	else if(strcmp(name, "iosreloadblock") == 0)
-	{
-		game.iosreloadblock = atoi(value);
-		return true;
-	}
-	else if(strcmp(name, "loadalternatedol") == 0)
-	{
-		game.loadalternatedol = atoi(value);
-		return true;
-	}
-	else if(strcmp(name, "alternatedolstart") == 0)
-	{
-		game.alternatedolstart = atoi(value);
-		return true;
-	}
-	else if(strcmp(name, "patchcountrystrings") == 0)
-	{
-		game.patchcountrystrings = atoi(value);
-		return true;
-	}
-	else if(strcmp(name, "alternatedolname") == 0)
-	{
-		game.alternatedolname = value;
-		return true;
-	}
-	else if(strcmp(name, "returnTo") == 0)
-	{
-		game.returnTo = atoi(value);
-		return true;
-	}
-	else if(strcmp(name, "sneekVideoPatch") == 0)
-	{
-		game.sneekVideoPatch = atoi(value);
-		return true;
-	}
-	else if(strcmp(name, "NandEmuMode") == 0)
-	{
-		game.NandEmuMode = atoi(value);
-		return true;
-	}
-	else if(strcmp(name, "NandEmuPath") == 0)
-	{
-		game.NandEmuPath = value;
-		return true;
-	}
-	else if(strcmp(name, "Hooktype") == 0)
-	{
-		game.Hooktype = atoi(value);
-		return true;
-	}
-	else if(strcmp(name, "WiirdDebugger") == 0)
-	{
-		game.WiirdDebugger = atoi(value);
-		return true;
-	}
-	else if(strcmp(name, "Locked") == 0)
-	{
-		game.Locked = atoi(value);
-		return true;
-	}
-	else if(strcmp(name, "GameCubeMode") == 0)
-	{
-		game.GameCubeMode = atoi(value);
-		return true;
-	}
-	else if(strcmp(name, "DMLVideo") == 0)
-	{
-		game.DMLVideo = atoi(value);
-		return true;
-	}
-	else if(strcmp(name, "DMLProgPatch") == 0)
-	{
-		game.DMLProgPatch = atoi(value);
-		return true;
-	}
-	else if(strcmp(name, "DMLNMM") == 0)
-	{
-		game.DMLNMM = atoi(value);
-		return true;
-	}
-	else if(strcmp(name, "DMLActivityLED") == 0)
-	{
-		game.DMLActivityLED = atoi(value);
-		return true;
-	}
-	else if(strcmp(name, "DMLPADHOOK") == 0)
-	{
-		game.DMLPADHOOK = atoi(value);
-		return true;
-	}
-	else if(strcmp(name, "DMLNoDisc2") == 0)
-	{
-		game.DMLNoDisc2 = atoi(value);
-		return true;
-	}
-	else if(strcmp(name, "DMLWidescreen") == 0)
-	{
-		game.DMLWidescreen = atoi(value);
-		return true;
-	}
-	else if(strcmp(name, "DMLScreenshot") == 0)
-	{
-		game.DMLScreenshot = atoi(value);
-		return true;
-	}
-	else if(strcmp(name, "DMLJPNPatch") == 0)
-	{
-		game.DMLJPNPatch = atoi(value);
-		return true;
-	}
-	else if(strcmp(name, "DMLDebug") == 0)
-	{
-		game.DMLDebug = atoi(value);
-		return true;
-	}
-	else if(strcmp(name, "NINDeflicker") == 0)
-	{
-		game.NINDeflicker = atoi(value);
-		return true;
-	}
-	else if(strcmp(name, "NINPal50Patch") == 0)
-	{
-		game.NINPal50Patch = atoi(value);
-		return true;
-	}
-	else if(strcmp(name, "NINWiiUWide") == 0)
-	{
-		game.NINWiiUWide = atoi(value);
-		return true;
-	}
-	else if (strcmp(name, "NINVideoScale") == 0)
-	{
-		game.NINVideoScale = atoi(value);
-		return true;
-	}
-	else if (strcmp(name, "NINVideoOffset") == 0)
-	{
-		game.NINVideoOffset = atoi(value);
-		return true;
-	}
-	else if (strcmp(name, "NINRemlimit") == 0)
-	{
-		game.NINRemlimit = atoi(value);
-		return true;
-	}
-	else if(strcmp(name, "NINArcadeMode") == 0)
-	{
-		game.NINArcadeMode = atoi(value);
-		return true;
-	}
-	else if (strcmp(name, "NINCCRumble") == 0)
-	{
-		game.NINCCRumble = atoi(value);
-		return true;
-	}
-	else if (strcmp(name, "NINSkipIPL") == 0)
-	{
-		game.NINSkipIPL = atoi(value);
-		return true;
-	}
-	else if (strcmp(name, "NINBBA") == 0)
-	{
-		game.NINBBA = atoi(value);
-		return true;
-	}
-	else if (strcmp(name, "NINBBAProfile") == 0)
-	{
-		game.NINBBAProfile = atoi(value);
-		return true;
-	}
-	else if(strcmp(name, "NINMCEmulation") == 0)
-	{
-		game.NINMCEmulation = atoi(value);
-		return true;
-	}
-	else if(strcmp(name, "NINMCSize") == 0)
-	{
-		game.NINMCSize = atoi(value);
-		return true;
-	}
-	else if(strcmp(name, "NINUSBHID") == 0)
-	{
-		game.NINUSBHID = atoi(value);
-		return true;
-	}
-	else if(strcmp(name, "NINMaxPads") == 0)
-	{
-		game.NINMaxPads = atoi(value);
-		return true;
-	}
-	else if(strcmp(name, "NINNativeSI") == 0)
-	{
-		game.NINNativeSI = atoi(value);
-		return true;
-	}
-	else if(strcmp(name, "NINOSReport") == 0)
-	{
-		game.NINOSReport = atoi(value);
-		return true;
-	}
-	else if(strcmp(name, "NINLED") == 0)
-	{
-		game.NINLED = atoi(value);
-		return true;
-	}
-	else if(strcmp(name, "NINLog") == 0)
-	{
-		game.NINLog = atoi(value);
-		return true;
-	}
-	else if(strcmp(name, "NINLoaderPath") == 0)
-	{
-		game.NINLoaderPath = value;
-		return true;
-	}
-	else if(strcmp(name, "DEVOMCEmulation") == 0)
-	{
-		game.DEVOMCEmulation = atoi(value);
-		return true;
-	}
-	else if(strcmp(name, "DEVOWidescreen") == 0)
-	{
-		game.DEVOWidescreen = atoi(value);
-		return true;
-	}
-	else if(strcmp(name, "DEVOActivityLED") == 0)
-	{
-		game.DEVOActivityLED = atoi(value);
-		return true;
-	}
-	else if(strcmp(name, "DEVOFZeroAX") == 0)
-	{
-		game.DEVOFZeroAX = atoi(value);
-		return true;
-	}
-	else if(strcmp(name, "DEVOTimerFix") == 0)
-	{
-		game.DEVOTimerFix = atoi(value);
-		return true;
-	}
-	else if(strcmp(name, "DEVODButtons") == 0)
-	{
-		game.DEVODButtons = atoi(value);
-		return true;
-	}
-	else if(strcmp(name, "DEVOCropOverscan") == 0)
-	{
-		game.DEVOCropOverscan = atoi(value);
-		return true;
-	}
-	else if(strcmp(name, "DEVODiscDelay") == 0)
-	{
-		game.DEVODiscDelay = atoi(value);
-		return true;
-	}
-	else if(strcmp(name, "PrivateServer") == 0)
-	{
-		game.PrivateServer = atoi(value);
-		return true;
-	}
-	else if(strcmp(name, "CustomAddress") == 0)
-	{
-		if(strlen(value) > 3)
-			game.CustomAddress = value;
-		return true;
-	}
+	std::unordered_map<std::string, std::unique_ptr<std::string>>::iterator it, end = settings.end();
 
-	return false;
+	if ((it = settings.find("video")) != end) game.video = atoi(it->second->c_str());
+	if ((it = settings.find("videoPatchDol")) != end) game.videoPatchDol = atoi(it->second->c_str());
+	if ((it = settings.find("patchFix480p")) != end) game.patchFix480p = atoi(it->second->c_str());
+	if ((it = settings.find("deflicker")) != end) game.deflicker = atoi(it->second->c_str());
+	if ((it = settings.find("videowidth")) != end) game.videoWidth = atoi(it->second->c_str());
+	if ((it = settings.find("aspectratio")) != end) game.aspectratio = atoi(it->second->c_str());
+	if ((it = settings.find("language")) != end) game.language = atoi(it->second->c_str());
+	if ((it = settings.find("ocarina")) != end) game.ocarina = atoi(it->second->c_str());
+	if ((it = settings.find("vipatch")) != end) game.vipatch = atoi(it->second->c_str());
+	if ((it = settings.find("ios")) != end) game.ios = atoi(it->second->c_str());
+	if ((it = settings.find("autoios")) != end) game.autoios = atoi(it->second->c_str());
+	if ((it = settings.find("parentalcontrol")) != end) game.parentalcontrol = atoi(it->second->c_str());
+	if ((it = settings.find("iosreloadblock")) != end) game.iosreloadblock = atoi(it->second->c_str());
+	if ((it = settings.find("loadalternatedol")) != end) game.loadalternatedol = atoi(it->second->c_str());
+	if ((it = settings.find("alternatedolstart")) != end) game.alternatedolstart = atoi(it->second->c_str());
+	if ((it = settings.find("patchcountrystrings")) != end) game.patchcountrystrings = atoi(it->second->c_str());
+	if ((it = settings.find("alternatedolname")) != end) game.alternatedolname = it->second->c_str();
+	if ((it = settings.find("returnTo")) != end) game.returnTo = atoi(it->second->c_str());
+	if ((it = settings.find("sneekVideoPatch")) != end) game.sneekVideoPatch = atoi(it->second->c_str());
+	if ((it = settings.find("NandEmuMode")) != end) game.NandEmuMode = atoi(it->second->c_str());
+	if ((it = settings.find("NandEmuPath")) != end) game.NandEmuPath = it->second->c_str();
+	if ((it = settings.find("Hooktype")) != end) game.Hooktype = atoi(it->second->c_str());
+	if ((it = settings.find("WiirdDebugger")) != end) game.WiirdDebugger = atoi(it->second->c_str());
+	if ((it = settings.find("Locked")) != end) game.Locked = atoi(it->second->c_str());
+	if ((it = settings.find("GameCubeMode")) != end) game.GameCubeMode = atoi(it->second->c_str());
+	if ((it = settings.find("DMLVideo")) != end) game.DMLVideo = atoi(it->second->c_str());
+	if ((it = settings.find("DMLProgPatch")) != end) game.DMLProgPatch = atoi(it->second->c_str());
+	if ((it = settings.find("DMLNMM")) != end) game.DMLNMM = atoi(it->second->c_str());
+	if ((it = settings.find("DMLActivityLED")) != end) game.DMLActivityLED = atoi(it->second->c_str());
+	if ((it = settings.find("DMLPADHOOK")) != end) game.DMLPADHOOK = atoi(it->second->c_str());
+	if ((it = settings.find("DMLNoDisc2")) != end) game.DMLNoDisc2 = atoi(it->second->c_str());
+	if ((it = settings.find("DMLWidescreen")) != end) game.DMLWidescreen = atoi(it->second->c_str());
+	if ((it = settings.find("DMLScreenshot")) != end) game.DMLScreenshot = atoi(it->second->c_str());
+	if ((it = settings.find("DMLJPNPatch")) != end) game.DMLJPNPatch = atoi(it->second->c_str());
+	if ((it = settings.find("DMLDebug")) != end) game.DMLDebug = atoi(it->second->c_str());
+	if ((it = settings.find("NINDeflicker")) != end) game.NINDeflicker = atoi(it->second->c_str());
+	if ((it = settings.find("NINPal50Patch")) != end) game.NINPal50Patch = atoi(it->second->c_str());
+	if ((it = settings.find("NINWiiUWide")) != end) game.NINWiiUWide = atoi(it->second->c_str());
+	if ((it = settings.find("NINVideoScale")) != end) game.NINVideoScale = atoi(it->second->c_str());
+	if ((it = settings.find("NINVideoOffset")) != end) game.NINVideoOffset = atoi(it->second->c_str());
+	if ((it = settings.find("NINRemlimit")) != end) game.NINRemlimit = atoi(it->second->c_str());
+	if ((it = settings.find("NINArcadeMode")) != end) game.NINArcadeMode = atoi(it->second->c_str());
+	if ((it = settings.find("NINCCRumble")) != end) game.NINCCRumble = atoi(it->second->c_str());
+	if ((it = settings.find("NINSkipIPL")) != end) game.NINSkipIPL = atoi(it->second->c_str());
+	if ((it = settings.find("NINBBA")) != end) game.NINBBA = atoi(it->second->c_str());
+	if ((it = settings.find("NINBBAProfile")) != end) game.NINBBAProfile = atoi(it->second->c_str());
+	if ((it = settings.find("NINMCEmulation")) != end) game.NINMCEmulation = atoi(it->second->c_str());
+	if ((it = settings.find("NINMCSize")) != end) game.NINMCSize = atoi(it->second->c_str());
+	if ((it = settings.find("NINUSBHID")) != end) game.NINUSBHID = atoi(it->second->c_str());
+	if ((it = settings.find("NINMaxPads")) != end) game.NINMaxPads = atoi(it->second->c_str());
+	if ((it = settings.find("NINNativeSI")) != end) game.NINNativeSI = atoi(it->second->c_str());
+	if ((it = settings.find("NINOSReport")) != end) game.NINOSReport = atoi(it->second->c_str());
+	if ((it = settings.find("NINLED")) != end) game.NINLED = atoi(it->second->c_str());
+	if ((it = settings.find("NINLog")) != end) game.NINLog = atoi(it->second->c_str());
+	if ((it = settings.find("NINLoaderPath")) != end) game.NINLoaderPath = it->second->c_str();
+	if ((it = settings.find("DEVOMCEmulation")) != end) game.DEVOMCEmulation = atoi(it->second->c_str());
+	if ((it = settings.find("DEVOWidescreen")) != end) game.DEVOWidescreen = atoi(it->second->c_str());
+	if ((it = settings.find("DEVOActivityLED")) != end) game.DEVOActivityLED = atoi(it->second->c_str());
+	if ((it = settings.find("DEVOFZeroAX")) != end) game.DEVOFZeroAX = atoi(it->second->c_str());
+	if ((it = settings.find("DEVOTimerFix")) != end) game.DEVOTimerFix = atoi(it->second->c_str());
+	if ((it = settings.find("DEVODButtons")) != end) game.DEVODButtons = atoi(it->second->c_str());
+	if ((it = settings.find("DEVOCropOverscan")) != end) game.DEVOCropOverscan = atoi(it->second->c_str());
+	if ((it = settings.find("DEVODiscDelay")) != end) game.DEVODiscDelay = atoi(it->second->c_str());
+	if ((it = settings.find("PrivateServer")) != end) game.PrivateServer = atoi(it->second->c_str());
+
+	if ((it = settings.find("CustomAddress")) != end)
+	{
+		if(it->second->length() > 3)
+			game.CustomAddress = it->second->c_str();
+	}
 }
 
 bool CGameSettings::ReadGameID(const char * src, char * GameID, int size)
@@ -616,6 +361,8 @@ void CGameSettings::ParseLine(char *line)
 
 	char * LinePtr = strchr(line, '=');
 
+	std::unordered_map<std::string, std::unique_ptr<std::string>> parsed_settings;
+
 	while(LinePtr != NULL)
 	{
 		LinePtr++;
@@ -624,16 +371,18 @@ void CGameSettings::ParseLine(char *line)
 
 		if (!eq) break;
 
-		std::string name, value;
+		std::string name;
+		std::unique_ptr<std::string> value = std::make_unique<std::string>();
 
 		this->TrimLine(name, LinePtr, ':');
-		this->TrimLine(value, eq + 1, ';');
+		this->TrimLine(*value, eq + 1, ';');
 
-		SetSetting(*NewCFG, name.c_str(), value.c_str());
+		parsed_settings[name] = std::move(value);
 
 		LinePtr = strchr(LinePtr, ';');
 	}
 
+	ApplySettings(*NewCFG, parsed_settings);
 	AddGame(std::move(NewCFG));
 }
 

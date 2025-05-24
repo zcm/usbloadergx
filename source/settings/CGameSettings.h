@@ -180,7 +180,7 @@ class CGameSettings
 		void SetDefault(GameCFG &game);
 	protected:
 		bool ReadGameID(const char * src, char * GameID, int size);
-		bool SetSetting(GameCFG & game, const char *name, const char *value);
+		void ApplySettings(GameCFG & game, std::unordered_map<std::string, std::unique_ptr<std::string>>& settings);
 		bool ValidVersion(FILE * file);
 		//!Find the config file in the default paths
 		bool FindConfig();
