@@ -62,17 +62,17 @@ GameCFG * CGameSettings::GetGameCFG(const char * id)
 	return &DefaultConfig;
 }
 
-bool CGameSettings::AddGame(std::shared_ptr<GameCFG> NewGame)
+bool CGameSettings::AddGame(std::unique_ptr<GameCFG> NewGame)
 {
 	const std::string key(NewGame->id);
-	GameMap[key] = NewGame;
+	GameMap[key] = std::move(NewGame);
 	return true;
 }
 
 bool CGameSettings::RemoveAll()
 {
 	GameMap.clear();
-	std::unordered_map<std::string, std::shared_ptr<GameCFG>>().swap(GameMap);
+	std::unordered_map<std::string, std::unique_ptr<GameCFG>>().swap(GameMap);
 
 	return Save();
 }
@@ -609,7 +609,7 @@ void CGameSettings::ParseLine(char *line)
 	if(strlen(GameID) != 6 && strlen(GameID) != 4)
 		return;
 
-	std::shared_ptr<GameCFG> NewCFG = std::make_shared<GameCFG>();
+	std::unique_ptr<GameCFG> NewCFG = std::make_unique<GameCFG>();
 	SetDefault(*NewCFG);
 
 	strcpy(NewCFG->id, GameID);
@@ -634,7 +634,7 @@ void CGameSettings::ParseLine(char *line)
 		LinePtr = strchr(LinePtr, ';');
 	}
 
-	AddGame(NewCFG);
+	AddGame(std::move(NewCFG));
 }
 
 void CGameSettings::TrimLine(std::string &dest, const char *src, char stopChar)
