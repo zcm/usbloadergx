@@ -4,7 +4,8 @@
 #include <string>
 #include <stdio.h>
 #include <gctypes.h>
-#include <vector>
+#include <memory>
+#include <unordered_map>
 #include "usbloader/disc.h"
 
 typedef struct _GameCFG
@@ -159,7 +160,8 @@ class CGameSettings
 		//!Save
 		bool Save();
 		//!AddGame
-		bool AddGame(const GameCFG & NewGame);
+		bool AddGame(GameCFG & NewGame) { return AddGame(std::make_shared<GameCFG>(NewGame)); }
+		bool AddGame(std::shared_ptr<GameCFG> NewGame);
 		//!Reset
 		bool RemoveAll();
 		//!Overload Reset for one Game
@@ -186,7 +188,7 @@ class CGameSettings
 		void ParseLine(char *line);
 		void TrimLine(std::string &dest, const char *src, char stopChar);
 		std::string ConfigPath;
-		std::vector<GameCFG> GameList;
+		std::unordered_map<std::string, std::shared_ptr<GameCFG>> GameMap;
 		GameCFG DefaultConfig;
 };
 
