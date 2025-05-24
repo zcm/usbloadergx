@@ -243,75 +243,77 @@ bool CGameSettings::Save()
 
 bool CGameSettings::SetSetting(GameCFG & game, const char *name, const char *value)
 {
+	short *target;
+
 	if (strcmp(name, "video") == 0)
 	{
-		game.video = atoi(value);
-		return true;
+		target = &game.video;
+		goto handle_short;
 	}
 	else if (strcmp(name, "videoPatchDol") == 0)
 	{
-		game.videoPatchDol = atoi(value);
-		return true;
+		target = &game.videoPatchDol;
+		goto handle_short;
 	}
 	else if (strcmp(name, "patchFix480p") == 0)
 	{
-		game.patchFix480p = atoi(value);
-		return true;
+		target = &game.patchFix480p;
+		goto handle_short;
 	}
 	else if (strcmp(name, "deflicker") == 0)
 	{
-		game.deflicker = atoi(value);
-		return true;
+		target = &game.deflicker;
+		goto handle_short;
 	}
 	else if(strcmp(name, "videowidth") == 0)
 	{
-		game.videoWidth = atoi(value);
-		return true;
+		target = &game.videoWidth;
+		goto handle_short;
 	}
 	else if(strcmp(name, "aspectratio") == 0)
 	{
-		game.aspectratio = atoi(value);
-		return true;
+		target = &game.aspectratio;
+		goto handle_short;
 	}
 	else if(strcmp(name, "language") == 0)
 	{
-		game.language = atoi(value);
-		return true;
+		target = &game.language;
+		goto handle_short;
 	}
 	else if(strcmp(name, "ocarina") == 0)
 	{
-		game.ocarina = atoi(value);
-		return true;
+		target = &game.ocarina;
+		goto handle_short;
 	}
 	else if(strcmp(name, "vipatch") == 0)
 	{
-		game.vipatch = atoi(value);
-		return true;
+		target = &game.vipatch;
+		goto handle_short;
 	}
 	else if(strcmp(name, "ios") == 0)
 	{
-		game.ios = atoi(value);
-		return true;
+		target = &game.ios;
+		goto handle_short;
 	}
 	else if(strcmp(name, "autoios") == 0)
 	{
-		game.autoios = atoi(value);
-		return true;
+		target = &game.autoios;
+		goto handle_short;
 	}
 	else if(strcmp(name, "parentalcontrol") == 0)
 	{
-		game.parentalcontrol = atoi(value);
-		return true;
+		target = &game.parentalcontrol;
+		goto handle_short;
 	}
 	else if(strcmp(name, "iosreloadblock") == 0)
 	{
-		game.iosreloadblock = atoi(value);
-		return true;
+		target = &game.iosreloadblock;
+		goto handle_short;
 	}
 	else if(strcmp(name, "loadalternatedol") == 0)
 	{
-		game.loadalternatedol = atoi(value);
-		return true;
+		target = &game.loadalternatedol;
+		goto handle_short;
 	}
 	else if(strcmp(name, "alternatedolstart") == 0)
 	{
@@ -320,8 +322,8 @@ bool CGameSettings::SetSetting(GameCFG & game, const char *name, const char *val
 	}
 	else if(strcmp(name, "patchcountrystrings") == 0)
 	{
-		game.patchcountrystrings = atoi(value);
-		return true;
+		target = &game.patchcountrystrings;
+		goto handle_short;
 	}
 	else if(strcmp(name, "alternatedolname") == 0)
 	{
@@ -330,18 +332,18 @@ bool CGameSettings::SetSetting(GameCFG & game, const char *name, const char *val
 	}
 	else if(strcmp(name, "returnTo") == 0)
 	{
-		game.returnTo = atoi(value);
-		return true;
+		target = &game.returnTo;
+		goto handle_short;
 	}
 	else if(strcmp(name, "sneekVideoPatch") == 0)
 	{
-		game.sneekVideoPatch = atoi(value);
-		return true;
+		target = &game.sneekVideoPatch;
+		goto handle_short;
 	}
 	else if(strcmp(name, "NandEmuMode") == 0)
 	{
-		game.NandEmuMode = atoi(value);
-		return true;
+		target = &game.NandEmuMode;
+		goto handle_short;
 	}
 	else if(strcmp(name, "NandEmuPath") == 0)
 	{
@@ -350,168 +352,168 @@ bool CGameSettings::SetSetting(GameCFG & game, const char *name, const char *val
 	}
 	else if(strcmp(name, "Hooktype") == 0)
 	{
-		game.Hooktype = atoi(value);
-		return true;
+		target = &game.Hooktype;
+		goto handle_short;
 	}
 	else if(strcmp(name, "WiirdDebugger") == 0)
 	{
-		game.WiirdDebugger = atoi(value);
-		return true;
+		target = &game.WiirdDebugger;
+		goto handle_short;
 	}
 	else if(strcmp(name, "Locked") == 0)
 	{
-		game.Locked = atoi(value);
-		return true;
+		target = &game.Locked;
+		goto handle_short;
 	}
 	else if(strcmp(name, "GameCubeMode") == 0)
 	{
-		game.GameCubeMode = atoi(value);
-		return true;
+		target = &game.GameCubeMode;
+		goto handle_short;
 	}
 	else if(strcmp(name, "DMLVideo") == 0)
 	{
-		game.DMLVideo = atoi(value);
-		return true;
+		target = &game.DMLVideo;
+		goto handle_short;
 	}
 	else if(strcmp(name, "DMLProgPatch") == 0)
 	{
-		game.DMLProgPatch = atoi(value);
-		return true;
+		target = &game.DMLProgPatch;
+		goto handle_short;
 	}
 	else if(strcmp(name, "DMLNMM") == 0)
 	{
-		game.DMLNMM = atoi(value);
-		return true;
+		target = &game.DMLNMM;
+		goto handle_short;
 	}
 	else if(strcmp(name, "DMLActivityLED") == 0)
 	{
-		game.DMLActivityLED = atoi(value);
-		return true;
+		target = &game.DMLActivityLED;
+		goto handle_short;
 	}
 	else if(strcmp(name, "DMLPADHOOK") == 0)
 	{
-		game.DMLPADHOOK = atoi(value);
-		return true;
+		target = &game.DMLPADHOOK;
+		goto handle_short;
 	}
 	else if(strcmp(name, "DMLNoDisc2") == 0)
 	{
-		game.DMLNoDisc2 = atoi(value);
-		return true;
+		target = &game.DMLNoDisc2;
+		goto handle_short;
 	}
 	else if(strcmp(name, "DMLWidescreen") == 0)
 	{
-		game.DMLWidescreen = atoi(value);
-		return true;
+		target = &game.DMLWidescreen;
+		goto handle_short;
 	}
 	else if(strcmp(name, "DMLScreenshot") == 0)
 	{
-		game.DMLScreenshot = atoi(value);
-		return true;
+		target = &game.DMLScreenshot;
+		goto handle_short;
 	}
 	else if(strcmp(name, "DMLJPNPatch") == 0)
 	{
-		game.DMLJPNPatch = atoi(value);
-		return true;
+		target = &game.DMLJPNPatch;
+		goto handle_short;
 	}
 	else if(strcmp(name, "DMLDebug") == 0)
 	{
-		game.DMLDebug = atoi(value);
-		return true;
+		target = &game.DMLDebug;
+		goto handle_short;
 	}
 	else if(strcmp(name, "NINDeflicker") == 0)
 	{
-		game.NINDeflicker = atoi(value);
-		return true;
+		target = &game.NINDeflicker;
+		goto handle_short;
 	}
 	else if(strcmp(name, "NINPal50Patch") == 0)
 	{
-		game.NINPal50Patch = atoi(value);
-		return true;
+		target = &game.NINPal50Patch;
+		goto handle_short;
 	}
 	else if(strcmp(name, "NINWiiUWide") == 0)
 	{
-		game.NINWiiUWide = atoi(value);
-		return true;
+		target = &game.NINWiiUWide;
+		goto handle_short;
 	}
 	else if (strcmp(name, "NINVideoScale") == 0)
 	{
-		game.NINVideoScale = atoi(value);
-		return true;
+		target = &game.NINVideoScale;
+		goto handle_short;
 	}
 	else if (strcmp(name, "NINVideoOffset") == 0)
 	{
-		game.NINVideoOffset = atoi(value);
-		return true;
+		target = &game.NINVideoOffset;
+		goto handle_short;
 	}
 	else if (strcmp(name, "NINRemlimit") == 0)
 	{
-		game.NINRemlimit = atoi(value);
-		return true;
+		target = &game.NINRemlimit;
+		goto handle_short;
 	}
 	else if(strcmp(name, "NINArcadeMode") == 0)
 	{
-		game.NINArcadeMode = atoi(value);
-		return true;
+		target = &game.NINArcadeMode;
+		goto handle_short;
 	}
 	else if (strcmp(name, "NINCCRumble") == 0)
 	{
-		game.NINCCRumble = atoi(value);
-		return true;
+		target = &game.NINCCRumble;
+		goto handle_short;
 	}
 	else if (strcmp(name, "NINSkipIPL") == 0)
 	{
-		game.NINSkipIPL = atoi(value);
-		return true;
+		target = &game.NINSkipIPL;
+		goto handle_short;
 	}
 	else if (strcmp(name, "NINBBA") == 0)
 	{
-		game.NINBBA = atoi(value);
-		return true;
+		target = &game.NINBBA;
+		goto handle_short;
 	}
 	else if (strcmp(name, "NINBBAProfile") == 0)
 	{
-		game.NINBBAProfile = atoi(value);
-		return true;
+		target = &game.NINBBAProfile;
+		goto handle_short;
 	}
 	else if(strcmp(name, "NINMCEmulation") == 0)
 	{
-		game.NINMCEmulation = atoi(value);
-		return true;
+		target = &game.NINMCEmulation;
+		goto handle_short;
 	}
 	else if(strcmp(name, "NINMCSize") == 0)
 	{
-		game.NINMCSize = atoi(value);
-		return true;
+		target = &game.NINMCSize;
+		goto handle_short;
 	}
 	else if(strcmp(name, "NINUSBHID") == 0)
 	{
-		game.NINUSBHID = atoi(value);
-		return true;
+		target = &game.NINUSBHID;
+		goto handle_short;
 	}
 	else if(strcmp(name, "NINMaxPads") == 0)
 	{
-		game.NINMaxPads = atoi(value);
-		return true;
+		target = &game.NINMaxPads;
+		goto handle_short;
 	}
 	else if(strcmp(name, "NINNativeSI") == 0)
 	{
-		game.NINNativeSI = atoi(value);
-		return true;
+		target = &game.NINNativeSI;
+		goto handle_short;
 	}
 	else if(strcmp(name, "NINOSReport") == 0)
 	{
-		game.NINOSReport = atoi(value);
-		return true;
+		target = &game.NINOSReport;
+		goto handle_short;
 	}
 	else if(strcmp(name, "NINLED") == 0)
 	{
-		game.NINLED = atoi(value);
-		return true;
+		target = &game.NINLED;
+		goto handle_short;
 	}
 	else if(strcmp(name, "NINLog") == 0)
 	{
-		game.NINLog = atoi(value);
-		return true;
+		target = &game.NINLog;
+		goto handle_short;
 	}
 	else if(strcmp(name, "NINLoaderPath") == 0)
 	{
@@ -520,48 +522,48 @@ bool CGameSettings::SetSetting(GameCFG & game, const char *name, const char *val
 	}
 	else if(strcmp(name, "DEVOMCEmulation") == 0)
 	{
-		game.DEVOMCEmulation = atoi(value);
-		return true;
+		target = &game.DEVOMCEmulation;
+		goto handle_short;
 	}
 	else if(strcmp(name, "DEVOWidescreen") == 0)
 	{
-		game.DEVOWidescreen = atoi(value);
-		return true;
+		target = &game.DEVOWidescreen;
+		goto handle_short;
 	}
 	else if(strcmp(name, "DEVOActivityLED") == 0)
 	{
-		game.DEVOActivityLED = atoi(value);
-		return true;
+		target = &game.DEVOActivityLED;
+		goto handle_short;
 	}
 	else if(strcmp(name, "DEVOFZeroAX") == 0)
 	{
-		game.DEVOFZeroAX = atoi(value);
-		return true;
+		target = &game.DEVOFZeroAX;
+		goto handle_short;
 	}
 	else if(strcmp(name, "DEVOTimerFix") == 0)
 	{
-		game.DEVOTimerFix = atoi(value);
-		return true;
+		target = &game.DEVOTimerFix;
+		goto handle_short;
 	}
 	else if(strcmp(name, "DEVODButtons") == 0)
 	{
-		game.DEVODButtons = atoi(value);
-		return true;
+		target = &game.DEVODButtons;
+		goto handle_short;
 	}
 	else if(strcmp(name, "DEVOCropOverscan") == 0)
 	{
-		game.DEVOCropOverscan = atoi(value);
-		return true;
+		target = &game.DEVOCropOverscan;
+		goto handle_short;
 	}
 	else if(strcmp(name, "DEVODiscDelay") == 0)
 	{
-		game.DEVODiscDelay = atoi(value);
-		return true;
+		target = &game.DEVODiscDelay;
+		goto handle_short;
 	}
 	else if(strcmp(name, "PrivateServer") == 0)
 	{
-		game.PrivateServer = atoi(value);
-		return true;
+		target = &game.PrivateServer;
+		goto handle_short;
 	}
 	else if(strcmp(name, "CustomAddress") == 0)
 	{
@@ -571,6 +573,10 @@ bool CGameSettings::SetSetting(GameCFG & game, const char *name, const char *val
 	}
 
 	return false;
+
+handle_short:
+	*target = atoi(value);
+	return true;
 }
 
 bool CGameSettings::ReadGameID(const char * src, char * GameID, int size)
