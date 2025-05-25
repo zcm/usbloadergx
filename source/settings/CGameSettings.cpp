@@ -245,331 +245,236 @@ bool CGameSettings::SetSetting(GameCFG & game, const char *name, const char *val
 {
 	short *target;
 
-	if (strcmp(name, "video") == 0)
-	{
-		target = &game.video;
-		goto handle_short;
-	}
-	else if (strcmp(name, "videoPatchDol") == 0)
-	{
-		target = &game.videoPatchDol;
-		goto handle_short;
-	}
-	else if (strcmp(name, "patchFix480p") == 0)
-	{
-		target = &game.patchFix480p;
-		goto handle_short;
-	}
-	else if (strcmp(name, "deflicker") == 0)
-	{
-		target = &game.deflicker;
-		goto handle_short;
-	}
-	else if(strcmp(name, "videowidth") == 0)
-	{
-		target = &game.videoWidth;
-		goto handle_short;
-	}
-	else if(strcmp(name, "aspectratio") == 0)
-	{
-		target = &game.aspectratio;
-		goto handle_short;
-	}
-	else if(strcmp(name, "language") == 0)
-	{
-		target = &game.language;
-		goto handle_short;
-	}
-	else if(strcmp(name, "ocarina") == 0)
-	{
-		target = &game.ocarina;
-		goto handle_short;
-	}
-	else if(strcmp(name, "vipatch") == 0)
-	{
-		target = &game.vipatch;
-		goto handle_short;
-	}
-	else if(strcmp(name, "ios") == 0)
-	{
-		target = &game.ios;
-		goto handle_short;
-	}
-	else if(strcmp(name, "autoios") == 0)
-	{
-		target = &game.autoios;
-		goto handle_short;
-	}
-	else if(strcmp(name, "parentalcontrol") == 0)
-	{
-		target = &game.parentalcontrol;
-		goto handle_short;
-	}
-	else if(strcmp(name, "iosreloadblock") == 0)
-	{
-		target = &game.iosreloadblock;
-		goto handle_short;
-	}
-	else if(strcmp(name, "loadalternatedol") == 0)
-	{
-		target = &game.loadalternatedol;
-		goto handle_short;
-	}
-	else if(strcmp(name, "alternatedolstart") == 0)
-	{
-		game.alternatedolstart = atoi(value);
-		return true;
-	}
-	else if(strcmp(name, "patchcountrystrings") == 0)
-	{
-		target = &game.patchcountrystrings;
-		goto handle_short;
-	}
-	else if(strcmp(name, "alternatedolname") == 0)
-	{
-		game.alternatedolname = value;
-		return true;
-	}
-	else if(strcmp(name, "returnTo") == 0)
-	{
-		target = &game.returnTo;
-		goto handle_short;
-	}
-	else if(strcmp(name, "sneekVideoPatch") == 0)
-	{
-		target = &game.sneekVideoPatch;
-		goto handle_short;
-	}
-	else if(strcmp(name, "NandEmuMode") == 0)
-	{
-		target = &game.NandEmuMode;
-		goto handle_short;
-	}
-	else if(strcmp(name, "NandEmuPath") == 0)
-	{
-		game.NandEmuPath = value;
-		return true;
-	}
-	else if(strcmp(name, "Hooktype") == 0)
-	{
-		target = &game.Hooktype;
-		goto handle_short;
-	}
-	else if(strcmp(name, "WiirdDebugger") == 0)
-	{
-		target = &game.WiirdDebugger;
-		goto handle_short;
-	}
-	else if(strcmp(name, "Locked") == 0)
-	{
-		target = &game.Locked;
-		goto handle_short;
-	}
-	else if(strcmp(name, "GameCubeMode") == 0)
-	{
-		target = &game.GameCubeMode;
-		goto handle_short;
-	}
-	else if(strcmp(name, "DMLVideo") == 0)
-	{
-		target = &game.DMLVideo;
-		goto handle_short;
-	}
-	else if(strcmp(name, "DMLProgPatch") == 0)
-	{
-		target = &game.DMLProgPatch;
-		goto handle_short;
-	}
-	else if(strcmp(name, "DMLNMM") == 0)
-	{
-		target = &game.DMLNMM;
-		goto handle_short;
-	}
-	else if(strcmp(name, "DMLActivityLED") == 0)
-	{
-		target = &game.DMLActivityLED;
-		goto handle_short;
-	}
-	else if(strcmp(name, "DMLPADHOOK") == 0)
-	{
-		target = &game.DMLPADHOOK;
-		goto handle_short;
-	}
-	else if(strcmp(name, "DMLNoDisc2") == 0)
-	{
-		target = &game.DMLNoDisc2;
-		goto handle_short;
-	}
-	else if(strcmp(name, "DMLWidescreen") == 0)
-	{
-		target = &game.DMLWidescreen;
-		goto handle_short;
-	}
-	else if(strcmp(name, "DMLScreenshot") == 0)
-	{
-		target = &game.DMLScreenshot;
-		goto handle_short;
-	}
-	else if(strcmp(name, "DMLJPNPatch") == 0)
-	{
-		target = &game.DMLJPNPatch;
-		goto handle_short;
-	}
-	else if(strcmp(name, "DMLDebug") == 0)
-	{
-		target = &game.DMLDebug;
-		goto handle_short;
-	}
-	else if(strcmp(name, "NINDeflicker") == 0)
-	{
-		target = &game.NINDeflicker;
-		goto handle_short;
-	}
-	else if(strcmp(name, "NINPal50Patch") == 0)
-	{
-		target = &game.NINPal50Patch;
-		goto handle_short;
-	}
-	else if(strcmp(name, "NINWiiUWide") == 0)
-	{
-		target = &game.NINWiiUWide;
-		goto handle_short;
-	}
-	else if (strcmp(name, "NINVideoScale") == 0)
-	{
-		target = &game.NINVideoScale;
-		goto handle_short;
-	}
-	else if (strcmp(name, "NINVideoOffset") == 0)
-	{
-		target = &game.NINVideoOffset;
-		goto handle_short;
-	}
-	else if (strcmp(name, "NINRemlimit") == 0)
-	{
-		target = &game.NINRemlimit;
-		goto handle_short;
-	}
-	else if(strcmp(name, "NINArcadeMode") == 0)
-	{
-		target = &game.NINArcadeMode;
-		goto handle_short;
-	}
-	else if (strcmp(name, "NINCCRumble") == 0)
-	{
-		target = &game.NINCCRumble;
-		goto handle_short;
-	}
-	else if (strcmp(name, "NINSkipIPL") == 0)
-	{
-		target = &game.NINSkipIPL;
-		goto handle_short;
-	}
-	else if (strcmp(name, "NINBBA") == 0)
-	{
-		target = &game.NINBBA;
-		goto handle_short;
-	}
-	else if (strcmp(name, "NINBBAProfile") == 0)
-	{
-		target = &game.NINBBAProfile;
-		goto handle_short;
-	}
-	else if(strcmp(name, "NINMCEmulation") == 0)
-	{
-		target = &game.NINMCEmulation;
-		goto handle_short;
-	}
-	else if(strcmp(name, "NINMCSize") == 0)
-	{
-		target = &game.NINMCSize;
-		goto handle_short;
-	}
-	else if(strcmp(name, "NINUSBHID") == 0)
-	{
-		target = &game.NINUSBHID;
-		goto handle_short;
-	}
-	else if(strcmp(name, "NINMaxPads") == 0)
-	{
-		target = &game.NINMaxPads;
-		goto handle_short;
-	}
-	else if(strcmp(name, "NINNativeSI") == 0)
-	{
-		target = &game.NINNativeSI;
-		goto handle_short;
-	}
-	else if(strcmp(name, "NINOSReport") == 0)
-	{
-		target = &game.NINOSReport;
-		goto handle_short;
-	}
-	else if(strcmp(name, "NINLED") == 0)
-	{
-		target = &game.NINLED;
-		goto handle_short;
-	}
-	else if(strcmp(name, "NINLog") == 0)
-	{
-		target = &game.NINLog;
-		goto handle_short;
-	}
-	else if(strcmp(name, "NINLoaderPath") == 0)
-	{
-		game.NINLoaderPath = value;
-		return true;
-	}
-	else if(strcmp(name, "DEVOMCEmulation") == 0)
-	{
-		target = &game.DEVOMCEmulation;
-		goto handle_short;
-	}
-	else if(strcmp(name, "DEVOWidescreen") == 0)
-	{
-		target = &game.DEVOWidescreen;
-		goto handle_short;
-	}
-	else if(strcmp(name, "DEVOActivityLED") == 0)
-	{
-		target = &game.DEVOActivityLED;
-		goto handle_short;
-	}
-	else if(strcmp(name, "DEVOFZeroAX") == 0)
-	{
-		target = &game.DEVOFZeroAX;
-		goto handle_short;
-	}
-	else if(strcmp(name, "DEVOTimerFix") == 0)
-	{
-		target = &game.DEVOTimerFix;
-		goto handle_short;
-	}
-	else if(strcmp(name, "DEVODButtons") == 0)
-	{
-		target = &game.DEVODButtons;
-		goto handle_short;
-	}
-	else if(strcmp(name, "DEVOCropOverscan") == 0)
-	{
-		target = &game.DEVOCropOverscan;
-		goto handle_short;
-	}
-	else if(strcmp(name, "DEVODiscDelay") == 0)
-	{
-		target = &game.DEVODiscDelay;
-		goto handle_short;
-	}
-	else if(strcmp(name, "PrivateServer") == 0)
-	{
-		target = &game.PrivateServer;
-		goto handle_short;
-	}
-	else if(strcmp(name, "CustomAddress") == 0)
-	{
-		if(strlen(value) > 3)
-			game.CustomAddress = value;
-		return true;
+	switch (*name++) {
+		case 'C':
+			if(strcmp(name, "ustomAddress") == 0)
+			{
+				if(strlen(value) > 3)
+					game.CustomAddress = value;
+				return true;
+			}
+
+			break;
+
+		case 'D':
+			if (strcmp(name, "EVO") == 0)
+			{
+				name += 3;
+
+				if(strcmp(name, "ActivityLED") == 0) target = &game.DEVOActivityLED;
+				else if(strcmp(name, "CropOverscan") == 0) target = &game.DEVOCropOverscan;
+				else if(strcmp(name, "DButtons") == 0) target = &game.DEVODButtons;
+				else if(strcmp(name, "DiscDelay") == 0) target = &game.DEVODiscDelay;
+				else if(strcmp(name, "FZeroAX") == 0) target = &game.DEVOFZeroAX;
+				else if(strcmp(name, "MCEmulation") == 0) target = &game.DEVOMCEmulation;
+				else if(strcmp(name, "TimerFix") == 0) target = &game.DEVOTimerFix;
+				else if(strcmp(name, "Widescreen") == 0) target = &game.DEVOWidescreen;
+				else break;
+
+				goto handle_short;
+			}
+			else if (strcmp(name, "ML") == 0)
+			{
+				name += 2;
+
+				if(strcmp(name, "ActivityLED") == 0) target = &game.DMLActivityLED;
+				else if(strcmp(name, "Debug") == 0) target = &game.DMLDebug;
+				else if(strcmp(name, "JPNPatch") == 0) target = &game.DMLJPNPatch;
+				else if(strcmp(name, "NMM") == 0) target = &game.DMLNMM;
+				else if(strcmp(name, "NoDisc2") == 0) target = &game.DMLNoDisc2;
+				else if(strcmp(name, "PADHOOK") == 0) target = &game.DMLPADHOOK;
+				else if(strcmp(name, "ProgPatch") == 0) target = &game.DMLProgPatch;
+				else if(strcmp(name, "Screenshot") == 0) target = &game.DMLScreenshot;
+				else if(strcmp(name, "Video") == 0) target = &game.DMLVideo;
+				else if(strcmp(name, "Widescreen") == 0) target = &game.DMLWidescreen;
+				else return false;
+
+				goto handle_short;
+			}
+
+			break;
+
+		case 'G':
+			if(strcmp(name, "ameCubeMode") == 0)
+			{
+				target = &game.GameCubeMode;
+				goto handle_short;
+			}
+
+			break;
+
+		case 'H':
+			if(strcmp(name, "ooktype") == 0)
+			{
+				target = &game.Hooktype;
+				goto handle_short;
+			}
+
+			break;
+
+		case 'L':
+			if(strcmp(name, "ocked") == 0)
+			{
+				target = &game.Locked;
+				goto handle_short;
+			}
+
+			break;
+
+		case 'N':
+			switch (*name++) {
+				case 'a':
+					if(strcmp(name, "ndEmuMode") == 0)
+					{
+						target = &game.NandEmuMode;
+						goto handle_short;
+					}
+					else if(strcmp(name, "ndEmuPath") == 0)
+					{
+						game.NandEmuPath = value;
+						return true;
+					}
+
+					break;
+				case 'I':
+					if (*name++ != 'N') break;
+					else if(strcmp(name, "ArcadeMode") == 0) target = &game.NINArcadeMode;
+					else if(strcmp(name, "BBA") == 0) target = &game.NINBBA;
+					else if(strcmp(name, "BBAProfile") == 0) target = &game.NINBBAProfile;
+					else if(strcmp(name, "CCRumble") == 0) target = &game.NINCCRumble;
+					else if(strcmp(name, "Deflicker") == 0) target = &game.NINDeflicker;
+					else if(strcmp(name, "LED") == 0) target = &game.NINLED;
+					else if(strcmp(name, "Log") == 0) target = &game.NINLog;
+					else if(strcmp(name, "MCEmulation") == 0) target = &game.NINMCEmulation;
+					else if(strcmp(name, "MCSize") == 0) target = &game.NINMCSize;
+					else if(strcmp(name, "MaxPads") == 0) target = &game.NINMaxPads;
+					else if(strcmp(name, "NativeSI") == 0) target = &game.NINNativeSI;
+					else if(strcmp(name, "OSReport") == 0) target = &game.NINOSReport;
+					else if(strcmp(name, "Pal50Patch") == 0) target = &game.NINPal50Patch;
+					else if(strcmp(name, "Remlimit") == 0) target = &game.NINRemlimit;
+					else if(strcmp(name, "SkipIPL") == 0) target = &game.NINSkipIPL;
+					else if(strcmp(name, "USBHID") == 0) target = &game.NINUSBHID;
+					else if(strcmp(name, "VideoOffset") == 0) target = &game.NINVideoOffset;
+					else if(strcmp(name, "VideoScale") == 0) target = &game.NINVideoScale;
+					else if(strcmp(name, "WiiUWide") == 0) target = &game.NINWiiUWide;
+					else if(strcmp(name, "LoaderPath") == 0)
+					{
+						game.NINLoaderPath = value;
+						return true;
+					}
+					else break;
+
+					goto handle_short;
+			}
+
+			break;
+
+		case 'P':
+			if(strcmp(name, "rivateServer") == 0)
+			{
+				target = &game.PrivateServer;
+				goto handle_short;
+			}
+
+			break;
+
+		case 'W':
+			if(strcmp(name, "iirdDebugger") == 0)
+			{
+				target = &game.WiirdDebugger;
+				goto handle_short;
+			}
+
+			break;
+
+		case 'a':
+			if(strcmp(name, "lternatedolname") == 0)
+			{
+				game.alternatedolname = value;
+				return true;
+			}
+			else if(strcmp(name, "lternatedolstart") == 0)
+			{
+				game.alternatedolstart = atoi(value);
+				return true;
+			}
+			else if(strcmp(name, "spectratio") == 0) target = &game.aspectratio;
+			else if(strcmp(name, "utoios") == 0) target = &game.autoios;
+			else break;
+
+			goto handle_short;
+
+		case 'd':
+			if(strcmp(name, "eflicker") == 0)
+			{
+				target = &game.deflicker;
+				goto handle_short;
+			}
+
+			break;
+
+		case 'i':
+			if(strcmp(name, "os") == 0) target = &game.ios;
+			else if(strcmp(name, "osreloadblock") == 0) target = &game.iosreloadblock;
+			else break;
+
+			goto handle_short;
+
+		case 'l':
+			if(strcmp(name, "anguage") == 0) target = &game.language;
+			else if(strcmp(name, "oadalternatedol") == 0) target = &game.loadalternatedol;
+			else break;
+
+			goto handle_short;
+
+		case 'o':
+			if(strcmp(name, "carina") == 0)
+			{
+				target = &game.ocarina;
+				goto handle_short;
+			}
+
+			break;
+
+		case 'p':
+			if(strcmp(name, "arentalcontrol") == 0) target = &game.parentalcontrol;
+			else if(strcmp(name, "atchFix480p") == 0) target = &game.patchFix480p;
+			else if(strcmp(name, "atchcountrystrings") == 0) target = &game.patchcountrystrings;
+			else break;
+
+			goto handle_short;
+
+		case 'r':
+			if(strcmp(name, "eturnTo") == 0) {
+				target = &game.returnTo;
+				goto handle_short;
+			}
+
+			break;
+
+		case 's':
+			if(strcmp(name, "neekVideoPatch") == 0) {
+				target = &game.sneekVideoPatch;
+				goto handle_short;
+			}
+
+		case 'v':
+			if(strcmp(name, "ideo") == 0)
+			{
+				if (!*(name += 4)) target = &game.video;
+				else if(strcmp(name, "PatchDol") == 0) target = &game.videoPatchDol;
+				else if(strcmp(name, "width") == 0) target = &game.videoWidth;
+				else break;
+
+				goto handle_short;
+			}
+			else if(strcmp(name, "ipatch") == 0)
+			{
+				target = &game.vipatch;
+				goto handle_short;
+			}
+
+			break;
 	}
 
 	return false;
