@@ -160,30 +160,6 @@ int StartUpProcess::ParseArguments(int argc, char *argv[])
 	return quickBoot;
 }
 
-void StartUpProcess::TextFade(int direction)
-{
-	if (direction > 0)
-	{
-		for (int i = 0; i < 255; i += direction)
-		{
-			messageTxt->SetAlpha(i);
-			Draw();
-		}
-		messageTxt->SetAlpha(255);
-		Draw();
-	}
-	else if (direction < 0)
-	{
-		for (int i = 255; i > 0; i += direction)
-		{
-			messageTxt->SetAlpha(i);
-			Draw();
-		}
-		messageTxt->SetAlpha(0);
-		Draw();
-	}
-}
-
 void StartUpProcess::SetTextf(const char *format, ...)
 {
 	char *tmp = NULL;
@@ -191,10 +167,9 @@ void StartUpProcess::SetTextf(const char *format, ...)
 	va_start(va, format);
 	if ((vasprintf(&tmp, format, va) >= 0) && tmp)
 	{
-		TextFade(-40);
 		gprintf(tmp);
 		messageTxt->SetText(tmp);
-		TextFade(40);
+		Draw();
 	}
 	va_end(va);
 
