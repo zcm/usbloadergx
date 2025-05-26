@@ -24,9 +24,7 @@ private:
 	GuiImageData *GXImageData;
 	GuiImage *background;
 	GuiImage *GXImage;
-	GuiText *titleTxt;
 	GuiText *messageTxt;
-	GuiText *versionTxt;
 	GuiText *cancelTxt;
 	GuiButton *cancelBtn;
 	GuiButton *sdmodeBtn;
