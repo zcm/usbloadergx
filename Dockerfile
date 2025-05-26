@@ -22,8 +22,6 @@ ARG USE=debug
 
 RUN cd /projectroot && make clean && make -j$(nproc) USE=$USE dist
 
-RUN cat /opt/devkitpro/devkitPPC/powerpc-eabi/include/sys/iosupport.h
-
 
 # Copy the DOL and ELF out of the container
 FROM scratch AS export-stage
