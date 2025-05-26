@@ -271,6 +271,35 @@ void StartUpProcess::LoadIOS(u8 ios, bool boot)
 	SetTextf("Reloaded to IOS%d r%d\n", Settings.LoaderIOS, IOS_GetRevision());
 }
 
+static void *StartUpISFS(void *arg) {
+	bool *result = (bool *) arg;
+
+	// Enable isfs permission if using Hermes v4 without AHB, or WiiU WiiVC (IOS255 fw.img)
+	if (IOS_GetVersion() < 200 || (IosLoader::IsHermesIOS() && IOS_GetRevision() == 4) || isWiiVC)
+	{
+		//SetTextf("Patching IOS%d\n", IOS_GetVersion());
+		if (IosPatch_RUNTIME(!isWiiVC, false, false, isWiiVC, false) == ERROR_PATCH)
+			gprintf("Patching IOS%d failed!\n", IOS_GetVersion());
+		else
+			NandTitles.Get(); // get NAND channel's titles
+
+		gprintf("Current IOS: %d - have AHB access: %s\n", IOS_GetVersion(), AHBPROT_DISABLED ? "yes" : "no");
+	}
+
+	// We only initialize once for the whole session
+	ISFS_Initialize();
+
+	// Check MIOS version
+	//SetTextf("Checking installed MIOS\n");
+	IosLoader::GetMIOSInfo();
+
+	//SetTextf("Loading resources\n");
+	*result = SystemMenuResources::Instance()->IsLoaded()
+		        || SystemMenuResources::Instance()->Init();
+
+	return NULL;
+}
+
 int StartUpProcess::Execute(bool quickGameBoot)
 {
 	Settings.EntryIOS = IOS_GetVersion();
@@ -311,11 +340,6 @@ int StartUpProcess::Execute(bool quickGameBoot)
 
 	SetTextf("Loading config files\n");
 	gprintf("\tLoading config...%s\n", Settings.Load() ? "done" : "failed");
-	gprintf("\tLoading language...%s\n", Settings.LoadLanguage(Settings.language_path, CONSOLE_DEFAULT) ? "done" : "failed");
-	gprintf("\tLoading game settings...%s\n", GameSettings.Load(Settings.ConfigPath) ? "done" : "failed");
-	gprintf("\tLoading game statistics...%s\n", GameStatistics.Load(Settings.ConfigPath) ? "done" : "failed");
-	gprintf("\tLoading game categories...%s\n", GameCategories.Load(Settings.ConfigPath) ? "done" : "failed");
-	gprintf("\tLoading cached titles...%s\n", GameTitles.ReadCachedTitles(Settings.titlestxt_path) ? "done" : "failed (using default)");
 
 	// Some settings need to be enabled to boot directly into games
 	gprintf("Quick game boot: %s\n", quickGameBoot ? "yes" : "no");
@@ -358,6 +382,19 @@ int StartUpProcess::Execute(bool quickGameBoot)
 		}
 	}
 
+	// Need to wait until all reloads are complete before initializing ISFS
+	lwp_t isfsWorker;
+	u8 stack[8192];
+	bool systemMenuResourcesReady = false;
+
+	LWP_CreateThread(&isfsWorker, StartUpISFS, &systemMenuResourcesReady, stack, sizeof(stack), 60);
+
+	gprintf("\tLoading language...%s\n", Settings.LoadLanguage(Settings.language_path, CONSOLE_DEFAULT) ? "done" : "failed");
+	gprintf("\tLoading game settings...%s\n", GameSettings.Load(Settings.ConfigPath) ? "done" : "failed");
+	gprintf("\tLoading game statistics...%s\n", GameStatistics.Load(Settings.ConfigPath) ? "done" : "failed");
+	gprintf("\tLoading game categories...%s\n", GameCategories.Load(Settings.ConfigPath) ? "done" : "failed");
+	gprintf("\tLoading cached titles...%s\n", GameTitles.ReadCachedTitles(Settings.titlestxt_path) ? "done" : "failed (using default)");
+
 	if (sdhc_mode_sd)
 		editMetaArguments();
 
@@ -383,30 +420,12 @@ int StartUpProcess::Execute(bool quickGameBoot)
 		}
 	}
 
-	// Enable isfs permission if using Hermes v4 without AHB, or WiiU WiiVC (IOS255 fw.img)
-	if (IOS_GetVersion() < 200 || (IosLoader::IsHermesIOS() && IOS_GetRevision() == 4) || isWiiVC)
-	{
-		SetTextf("Patching IOS%d\n", IOS_GetVersion());
-		if (IosPatch_RUNTIME(!isWiiVC, false, false, isWiiVC, false) == ERROR_PATCH)
-			gprintf("Patching IOS%d failed!\n", IOS_GetVersion());
-		else
-			NandTitles.Get(); // get NAND channel's titles
+	SetTextf("Waiting for resources");
+	LWP_JoinThread(isfsWorker, NULL);
 
-		gprintf("Current IOS: %d - have AHB access: %s\n", IOS_GetVersion(), AHBPROT_DISABLED ? "yes" : "no");
-	}
-
-	// We only initialize once for the whole session
-	ISFS_Initialize();
-
-	// Check MIOS version
-	SetTextf("Checking installed MIOS\n");
-	IosLoader::GetMIOSInfo();
-
-	SetTextf("Loading resources\n");
 	// Do not allow banner grid mode without AHBPROT
 	// this function does nothing if it was already initiated before
-	if (!SystemMenuResources::Instance()->IsLoaded() && !SystemMenuResources::Instance()->Init()
-		&& Settings.gameDisplay == BANNERGRID_MODE)
+	if (!systemMenuResourcesReady && Settings.gameDisplay == BANNERGRID_MODE)
 	{
 		Settings.gameDisplay = LIST_MODE;
 		Settings.GameWindowMode = GAMEWINDOW_DISC;
