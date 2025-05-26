@@ -12,3 +12,5 @@ usbloader_gx/
 /usbloader_gx.zip
 /wiiload
 /output
+*.un~
+*.swp
