@@ -8,7 +8,12 @@
 # { "features": { "buildkit": true } }
 # instead of the environment variable
 
-FROM devkitpro/devkitppc:20240702 as usbloader
+FROM devkitpro/devkitppc:20220531 as usbloader
+
+# Debian buster is no longer supported - switch to archive mirror
+RUN sed -Ei 's/\<deb.debian.org\>/archive.debian.org/g' \
+      /etc/apt/sources.list.d/buster-backports.list
+
 RUN apt-get update -y && \
     apt-get install -y xz-utils make git zip
 
