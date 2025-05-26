@@ -37,30 +37,14 @@ StartUpProcess::StartUpProcess()
 	//! Load default font for the next text outputs
 	Theme::LoadFont("");
 
-	background = new GuiImage(screenwidth, screenheight, (GXColor){0, 0, 0, 255});
-
 	GXImageData = Resources::GetImageData("gxlogo.png");
 	GXImage = new GuiImage(GXImageData);
 	GXImage->SetAlignment(ALIGN_CENTER, ALIGN_MIDDLE);
 	GXImage->SetPosition(screenwidth / 2, screenheight / 2 - 50);
 
-	titleTxt = new GuiText("Loading...", 24, (GXColor){255, 255, 255, 255});
-	titleTxt->SetAlignment(ALIGN_CENTER, ALIGN_MIDDLE);
-	titleTxt->SetPosition(screenwidth / 2, screenheight / 2 + 30);
-
 	messageTxt = new GuiText(" ", 22, (GXColor){255, 255, 255, 255});
 	messageTxt->SetAlignment(ALIGN_CENTER, ALIGN_MIDDLE);
 	messageTxt->SetPosition(screenwidth / 2, screenheight / 2 + 60);
-
-	versionTxt = new GuiText(" ", 18, (GXColor){255, 255, 255, 255});
-	versionTxt->SetAlignment(ALIGN_LEFT, ALIGN_BOTTOM);
-	versionTxt->SetPosition(23, screenheight - 20);
-
-#ifdef FULLCHANNEL
-	versionTxt->SetTextf("v3.0c Rev. %s (%s)", GetRev(), commitID());
-#else
-	versionTxt->SetTextf("v3.0 Rev. %s (%s)", GetRev(), commitID());
-#endif
 
 	if (strncmp(Settings.ConfigPath, "sd", 2) == 0)
 		cancelTxt = new GuiText("Press B to cancel or A to enable SD card mode", 22, (GXColor){255, 255, 255, 255});
@@ -87,12 +71,9 @@ StartUpProcess::StartUpProcess()
 
 StartUpProcess::~StartUpProcess()
 {
-	delete background;
 	delete GXImageData;
 	delete GXImage;
-	delete titleTxt;
 	delete messageTxt;
-	delete versionTxt;
 	delete cancelTxt;
 	delete cancelBtn;
 	delete sdmodeBtn;
@@ -160,30 +141,6 @@ int StartUpProcess::ParseArguments(int argc, char *argv[])
 	return quickBoot;
 }
 
-void StartUpProcess::TextFade(int direction)
-{
-	if (direction > 0)
-	{
-		for (int i = 0; i < 255; i += direction)
-		{
-			messageTxt->SetAlpha(i);
-			Draw();
-		}
-		messageTxt->SetAlpha(255);
-		Draw();
-	}
-	else if (direction < 0)
-	{
-		for (int i = 255; i > 0; i += direction)
-		{
-			messageTxt->SetAlpha(i);
-			Draw();
-		}
-		messageTxt->SetAlpha(0);
-		Draw();
-	}
-}
-
 void StartUpProcess::SetTextf(const char *format, ...)
 {
 	char *tmp = NULL;
@@ -191,10 +148,9 @@ void StartUpProcess::SetTextf(const char *format, ...)
 	va_start(va, format);
 	if ((vasprintf(&tmp, format, va) >= 0) && tmp)
 	{
-		TextFade(-40);
 		gprintf(tmp);
 		messageTxt->SetText(tmp);
-		TextFade(40);
+		Draw();
 	}
 	va_end(va);
 
@@ -294,6 +250,35 @@ void StartUpProcess::LoadIOS(u8 ios, bool boot)
 		Sys_BackToLoader();
 	}
 	SetTextf("Reloaded to IOS%d r%d\n", Settings.LoaderIOS, IOS_GetRevision());
+}
+
+static void *StartUpISFS(void *arg) {
+	bool *result = (bool *) arg;
+
+	// Enable isfs permission if using Hermes v4 without AHB, or WiiU WiiVC (IOS255 fw.img)
+	if (IOS_GetVersion() < 200 || (IosLoader::IsHermesIOS() && IOS_GetRevision() == 4) || isWiiVC)
+	{
+		//SetTextf("Patching IOS%d\n", IOS_GetVersion());
+		if (IosPatch_RUNTIME(!isWiiVC, false, false, isWiiVC, false) == ERROR_PATCH)
+			gprintf("Patching IOS%d failed!\n", IOS_GetVersion());
+		else
+			NandTitles.Get(); // get NAND channel's titles
+
+		gprintf("Current IOS: %d - have AHB access: %s\n", IOS_GetVersion(), AHBPROT_DISABLED ? "yes" : "no");
+	}
+
+	// We only initialize once for the whole session
+	ISFS_Initialize();
+
+	// Check MIOS version
+	//SetTextf("Checking installed MIOS\n");
+	IosLoader::GetMIOSInfo();
+
+	//SetTextf("Loading resources\n");
+	*result = SystemMenuResources::Instance()->IsLoaded()
+		        || SystemMenuResources::Instance()->Init();
+
+	return NULL;
 }
 
 int StartUpProcess::Execute(bool quickGameBoot)
@@ -403,6 +388,19 @@ int StartUpProcess::Execute(bool quickGameBoot)
 		}
 	}
 
+	// Need to wait until all reloads are complete before initializing ISFS
+	lwp_t isfsWorker;
+	u8 stack[8192];
+	bool systemMenuResourcesReady = false;
+
+	LWP_CreateThread(&isfsWorker, StartUpISFS, &systemMenuResourcesReady, stack, sizeof(stack), 60);
+
+	gprintf("\tLoading language...%s\n", Settings.LoadLanguage(Settings.language_path, CONSOLE_DEFAULT) ? "done" : "failed");
+	gprintf("\tLoading game settings...%s\n", GameSettings.Load(Settings.ConfigPath) ? "done" : "failed");
+	gprintf("\tLoading game statistics...%s\n", GameStatistics.Load(Settings.ConfigPath) ? "done" : "failed");
+	gprintf("\tLoading game categories...%s\n", GameCategories.Load(Settings.ConfigPath) ? "done" : "failed");
+	gprintf("\tLoading cached titles...%s\n", GameTitles.ReadCachedTitles(Settings.titlestxt_path) ? "done" : "failed (using default)");
+
 	if (sdhc_mode_sd)
 		editMetaArguments();
 
@@ -428,30 +426,12 @@ int StartUpProcess::Execute(bool quickGameBoot)
 		}
 	}
 
-	// Enable isfs permission if using Hermes v4 without AHB, or WiiU WiiVC (IOS255 fw.img)
-	if (IOS_GetVersion() < 200 || (IosLoader::IsHermesIOS() && IOS_GetRevision() == 4) || isWiiVC)
-	{
-		SetTextf("Patching IOS%d\n", IOS_GetVersion());
-		if (IosPatch_RUNTIME(!isWiiVC, false, false, isWiiVC, false) == ERROR_PATCH)
-			gprintf("Patching IOS%d failed!\n", IOS_GetVersion());
-		else
-			NandTitles.Get(); // get NAND channel's titles
+	SetTextf("Waiting for resources");
+	LWP_JoinThread(isfsWorker, NULL);
 
-		gprintf("Current IOS: %d - have AHB access: %s\n", IOS_GetVersion(), AHBPROT_DISABLED ? "yes" : "no");
-	}
-
-	// We only initialize once for the whole session
-	ISFS_Initialize();
-
-	// Check MIOS version
-	SetTextf("Checking installed MIOS\n");
-	IosLoader::GetMIOSInfo();
-
-	SetTextf("Loading resources\n");
 	// Do not allow banner grid mode without AHBPROT
 	// this function does nothing if it was already initiated before
-	if (!SystemMenuResources::Instance()->IsLoaded() && !SystemMenuResources::Instance()->Init()
-		&& Settings.gameDisplay == BANNERGRID_MODE)
+	if (!systemMenuResourcesReady && Settings.gameDisplay == BANNERGRID_MODE)
 	{
 		Settings.gameDisplay = LIST_MODE;
 		Settings.GameWindowMode = GAMEWINDOW_DISC;
@@ -477,11 +457,8 @@ int StartUpProcess::Execute(bool quickGameBoot)
 
 void StartUpProcess::Draw()
 {
-	background->Draw();
 	GXImage->Draw();
-	titleTxt->Draw();
 	messageTxt->Draw();
-	versionTxt->Draw();
 	if (drawCancel)
 		cancelTxt->Draw();
 	Menu_Render();

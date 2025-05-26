@@ -14,7 +14,6 @@ private:
 	void LoadIOS(u8 ios, bool boot);
 	int Execute(bool quickGameBoot);
 	bool USBSpinUp();
-	void TextFade(int direction);
 	void SetTextf(const char *format, ...);
 	void Draw();
 	static int ParseArguments(int argc, char *argv[]);
@@ -23,11 +22,8 @@ private:
 	bool drawCancel;
 
 	GuiImageData *GXImageData;
-	GuiImage *background;
 	GuiImage *GXImage;
-	GuiText *titleTxt;
 	GuiText *messageTxt;
-	GuiText *versionTxt;
 	GuiText *cancelTxt;
 	GuiButton *cancelBtn;
 	GuiButton *sdmodeBtn;

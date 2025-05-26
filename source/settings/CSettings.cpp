@@ -260,14 +260,41 @@ bool CSettings::Load()
 		return false;
 	}
 
-	char line[1024];
+	size_t bytes_read, leftover = 0;
+	char buffer[1024 * 5];  // The entire file should fit in 5K
 
-	while (fgets(line, sizeof(line), file))
+	while ((bytes_read = leftover + fread(buffer + leftover, 1, sizeof(buffer) - leftover - 1, file)))
 	{
-		if (line[0] == '#') continue;
+		buffer[bytes_read] = '\0';
 
-		this->ParseLine(line);
+		char *line, *next;
+		line = next = buffer;
+
+		while ((next = strchr(line, '\n')))
+		{
+			if (*line != '#')
+			{
+				*next = '\0';
+				this->ParseLine(line);
+			}
+
+			line = next + 1;
+		}
+
+		if (line == (next = strchr(line, '\0')))
+			break;
+
+		if (next != buffer + bytes_read)
+		{
+			this->ParseLine(line);  // Parse the final line
+			break;
+		}
+
+		leftover = next - line;
+		line = (char *) memmove(buffer, line, bytes_read - (line - buffer));
+		next = line + leftover;
 	}
+
 	fclose(file);
 
 	// A valid config file exists on the loader
@@ -1542,33 +1569,30 @@ bool CSettings::FindConfig()
 
 void CSettings::ParseLine(char *line)
 {
-	char temp[1024], name[1024], value[1024];
+	// ensuring the first character isn't a space lets us loop efficiently later
+	if (*line == ' ' || *line == '=') return;
 
-	snprintf(temp, sizeof(temp), "%s", line);
-
-	char * eq = strchr(temp, '=');
+	char *eq = strchr(line, '=');
 
 	if (!eq) return;
 
-	*eq = 0;
+	char *value = eq + 1;
 
-	this->TrimLine(name, temp, sizeof(name));
-	this->TrimLine(value, eq + 1, sizeof(value));
+	while (*--eq == ' ');
 
-	this->SetSetting(name, value);
-}
+	*(eq + 1) = '\0';  // line becomes just the setting name
 
-void CSettings::TrimLine(char *dest, char *src, int size)
-{
-	int len;
-	while (*src == ' ')
-		src++;
-	len = strlen(src);
-	while (len > 0 && strchr(" \r\n", src[len - 1]))
-		len--;
-	if (len >= size) len = size - 1;
-	strncpy(dest, src, len);
-	dest[len] = 0;
+	while (*value == ' ')
+		++value;
+
+	char *end = strchr(value, '\0') - 1;
+
+	while (*end == ' ' || *end == '\r' || *end == '\n')
+		--end;
+
+	*(end + 1) = '\0';
+
+	this->SetSetting(line, value);
 }
 
 //! Get language code from the selected language file
