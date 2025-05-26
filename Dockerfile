@@ -1,5 +1,9 @@
 # Build: 
 # DOCKER_BUILDKIT=1 docker build -o output .
+
+# For release builds (without debug):
+# DOCKER_BUILDKIT=1 docker build --build-arg USE=release -o output .
+
 # for Windows, use 
 # { "features": { "buildkit": true } }
 # instead of the environment variable
@@ -31,7 +35,10 @@ ENV DEVKITPPC=/devkitpro/devkitPPC
 # Now we have a container that has the dev environment set up. 
 # Copy current folder into container, then compile
 COPY . /projectroot/
-RUN cd /projectroot && make clean && make -j8 dist
+
+ARG USE=debug
+
+RUN cd /projectroot && make clean && make -j8 USE=$USE dist
 
 
 # Copy the DOL and ELF out of the container
