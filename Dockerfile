@@ -8,7 +8,7 @@
 # { "features": { "buildkit": true } }
 # instead of the environment variable
 
-FROM devkitpro/devkitppc:20220531 as usbloader
+FROM devkitpro/devkitppc:20230110 as usbloader
 
 # Debian buster is no longer supported - switch to archive mirror
 RUN sed -Ei 's/\<deb.debian.org\>/archive.debian.org/g' \
