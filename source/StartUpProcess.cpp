@@ -37,8 +37,6 @@ StartUpProcess::StartUpProcess()
 	//! Load default font for the next text outputs
 	Theme::LoadFont("");
 
-	background = new GuiImage(screenwidth, screenheight, (GXColor){0, 0, 0, 255});
-
 	GXImageData = Resources::GetImageData("gxlogo.png");
 	GXImage = new GuiImage(GXImageData);
 	GXImage->SetAlignment(ALIGN_CENTER, ALIGN_MIDDLE);
@@ -73,7 +71,6 @@ StartUpProcess::StartUpProcess()
 
 StartUpProcess::~StartUpProcess()
 {
-	delete background;
 	delete GXImageData;
 	delete GXImage;
 	delete messageTxt;
@@ -430,7 +427,6 @@ int StartUpProcess::Execute(bool quickGameBoot)
 
 void StartUpProcess::Draw()
 {
-	background->Draw();
 	GXImage->Draw();
 	messageTxt->Draw();
 	if (drawCancel)
