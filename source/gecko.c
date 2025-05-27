@@ -4,6 +4,7 @@
 #include <stdarg.h>
 #include <malloc.h>
 #include <sys/iosupport.h>
+#include <ogc/libversion.h>
 
 // #define DEBUG_TO_FILE
 // #define WIFI_GECKO // don't keep this for released build
@@ -135,10 +136,12 @@ static const devoptab_t gecko_out = {
 	NULL,		// lstat_r
 	NULL,		// utimes_r
 #endif
+#if _V_MAJOR_ > 2 || _V_MAJOR_ == 2 && _V_MINOR_ >= 4  // libogc >= 2.4
 	NULL,		// fpathconf_r
 	NULL,		// pathconf_r
 	NULL,		// symlink_r
 	NULL,		// readlink_r
+#endif
 };
 
 void USBGeckoOutput()
