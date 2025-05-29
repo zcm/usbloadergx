@@ -1,0 +1,3 @@
+[submodule "source/libs/libfat"]
+	path = source/libs/libfat
+	url = https://github.com/extremscorner/libfat.git

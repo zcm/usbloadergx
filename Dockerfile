@@ -23,6 +23,8 @@ RUN mkdir /projectroot
 # Copy current folder into container, then compile
 COPY . /projectroot/
 
+RUN cd /projectroot && git submodule update --init
+
 ARG USE=debug
 
 RUN cd /projectroot && make clean && make -j$(nproc) USE=$USE dist

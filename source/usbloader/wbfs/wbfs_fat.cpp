@@ -10,6 +10,7 @@
 #include <fcntl.h>
 #include <sys/statvfs.h>
 #include <ctype.h>
+#include <fat.h>
 
 #include "Controls/DeviceHandler.hpp"
 #include "FileOperations/fileops.h"
@@ -18,7 +19,6 @@
 #include "usbloader/disc.h"
 #include "usbloader/usbstorage2.h"
 #include "language/gettext.h"
-#include "libs/libfat/fat.h"
 #include "libs/libfat-frag/fatfile_frag.h"
 #include "utils/ShowError.h"
 #include "wbfs_fat.h"

@@ -1,6 +1,8 @@
 #ifndef FAT_FRAG_H_
 #define FAT_FRAG_H_
 
+#include <gctypes.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif

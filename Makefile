@@ -22,6 +22,7 @@ SOURCES		:=	source \
 				source/GUI \
 				source/Controls \
 				source/system \
+				source/libs/libfat-frag \
 				source/libs/libwbfs \
 				source/libs/libruntimeiospatch \
 				source/language \
@@ -85,7 +86,7 @@ endif
 #---------------------------------------------------------------------------------
 # any extra libraries we wish to link with the project
 #---------------------------------------------------------------------------------
-LIBS := -lwolfssl -lcustomfat -lcustomntfs -lcustomext2fs -lvorbisidec -logg \
+LIBS := -lwolfssl -lfat -lcustomntfs -lcustomext2fs -lvorbisidec -logg \
 		-lmad -lfreetype -lgd -ljpeg -lpng -lm -lz -lwiiuse -lwiidrc \
 		-lbte -lasnd -logc
 #---------------------------------------------------------------------------------
@@ -93,6 +94,9 @@ LIBS := -lwolfssl -lcustomfat -lcustomntfs -lcustomext2fs -lvorbisidec -logg \
 # include and lib
 #---------------------------------------------------------------------------------
 LIBDIRS	:= $(CURDIR)/portlibs
+
+SUBLIBS	:= source/libs/libfat/libogc2/lib/wii/libfat.a
+
 #---------------------------------------------------------------------------------
 # no real need to edit anything past this point unless you need to add additional
 # rules for different file extensions
@@ -153,17 +157,34 @@ export INCLUDE	:=	$(foreach dir,$(INCLUDES),-I$(CURDIR)/$(dir)) \
 # build a list of library paths
 #---------------------------------------------------------------------------------
 export LIBPATHS	:=	$(foreach dir,$(LIBDIRS),-L$(dir)/lib) -L$(CURDIR)/source/libs/libdrc/ \
-					-L$(CURDIR)/source/libs/libext2fs -L$(CURDIR)/source/libs/libfat \
+					-L$(CURDIR)/source/libs/libext2fs \
+					-L$(CURDIR)/source/libs/libfat/libogc2/lib/wii \
 					-L$(CURDIR)/source/libs/libntfs \
 					-L$(CURDIR)/source/libs/libwolfssl -L$(LIBOGC_LIB)
 
 export OUTPUT	:=	$(CURDIR)/$(TARGET)
-.PHONY: $(BUILD) lang all clean
+.PHONY: $(BUILD) lang all clean sublibs
 
 #---------------------------------------------------------------------------------
 $(BUILD):
+	$(MAKE) sublibs
 	@[ -d $@ ] || mkdir -p $@
 	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
+
+define sublib_patch_and_make =
+INCLUDE += -Isource/libs/$(1)/include
+PATCHES_$(1) := $(shell find source/libs/_patches/$(libname) -name '*.sed')
+
+source/libs/$(1)/$(2): source/libs/$(1)/Makefile $$(PATCHES_$(1))
+	for p in $$(PATCHES_$(1)); do \
+		sed -Ei -f $$$$p `echo $$$$p | sed -E -e 's/_patches\/([^/]+)\/[^/]+/\1/' -e 's/\.sed$$$$//'`; \
+	done
+	$(MAKE) -C source/libs/$(1) $(3)
+endef
+
+$(eval $(call sublib_patch_and_make,libfat,libogc2/lib/wii/libfat.a,wii-release))
+
+sublibs: $(SUBLIBS)
 
 channel:
 	@[ -d build ] || mkdir -p build
@@ -188,6 +209,7 @@ all:
 clean:
 	@echo Cleaning...
 	@rm -fr $(BUILD) $(OUTPUT).elf $(OUTPUT).dol usbloader_gx.zip usbloader_gx
+	$(foreach sub,$(shell find source/libs -maxdepth 2 -name Makefile -exec dirname {} \;),-$(MAKE) -C $(sub) clean)
 
 #---------------------------------------------------------------------------------
 package:
