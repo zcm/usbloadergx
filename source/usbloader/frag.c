@@ -5,7 +5,7 @@
 #include <sys/stat.h>
 
 #include "libs/libext2fs/ext2_frag.h"
-#include "libs/libfat/fatfile_frag.h"
+#include "libs/libfat-frag/fatfile_frag.h"
 #include "libs/libntfs/ntfsfile_frag.h"
 #include "libs/libwbfs/libwbfs.h"
 #include "usbloader/wbfs.h"

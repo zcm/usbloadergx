@@ -8,7 +8,7 @@
 # { "features": { "buildkit": true } }
 # instead of the environment variable
 
-FROM devkitpro/devkitppc:20230110 as usbloader
+FROM devkitpro/devkitppc:20230419 as usbloader
 
 # Debian buster is no longer supported - switch to archive mirror
 RUN sed -Ei 's/\<deb.debian.org\>/archive.debian.org/g' \
@@ -22,6 +22,8 @@ RUN mkdir /projectroot
 # Now we have a container that has the dev environment set up. 
 # Copy current folder into container, then compile
 COPY . /projectroot/
+
+RUN cd /projectroot && git submodule update --init
 
 ARG USE=debug
 
