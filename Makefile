@@ -216,6 +216,7 @@ clean:
 
 #---------------------------------------------------------------------------------
 package:
+	@echo "\nBuilding with `$(DEVKITPPC)/bin/*gcc --version | head -n1`\n"
 	$(MAKE)
 	@echo Packaging...
 	@[ -d $(PROJECTDIR)/usbloader_gx ] || mkdir -p $(PROJECTDIR)/usbloader_gx
