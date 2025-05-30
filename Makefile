@@ -266,59 +266,59 @@ language: $(wildcard $(PROJECTDIR)/Languages/*.lang) $(wildcard $(PROJECTDIR)/Th
 
 %.elf.o : %.elf
 	@echo $(notdir $<)
-	@bin2s -a 32 $< | $(AS) -o $(@)
+	@bin2s -a 32 $< | sed '$$a\' | $(AS) -o $(@)
 
 %.dol.o : %.dol
 	@echo $(notdir $<)
-	@bin2s -a 32 $< | $(AS) -o $(@)
+	@bin2s -a 32 $< | sed '$$a\' | $(AS) -o $(@)
 
 %.ttf.o : %.ttf
 	@echo $(notdir $<)
-	@bin2s -a 32 $< | $(AS) -o $(@)
+	@bin2s -a 32 $< | sed '$$a\' | $(AS) -o $(@)
 
 %.png.o : %.png
 	@echo $(notdir $<)
-	@bin2s -a 32 $< | $(AS) -o $(@)
+	@bin2s -a 32 $< | sed '$$a\' | $(AS) -o $(@)
 
 %.ogg.o : %.ogg
 	@echo $(notdir $<)
-	@bin2s -a 32 $< | $(AS) -o $(@)
+	@bin2s -a 32 $< | sed '$$a\' | $(AS) -o $(@)
 
 %.pcm.o : %.pcm
 	@echo $(notdir $<)
-	@bin2s -a 32 $< | $(AS) -o $(@)
+	@bin2s -a 32 $< | sed '$$a\' | $(AS) -o $(@)
 
 %.wav.o : %.wav
 	@echo $(notdir $<)
-	@bin2s -a 32 $< | $(AS) -o $(@)
+	@bin2s -a 32 $< | sed '$$a\' | $(AS) -o $(@)
 
 %.mp3.o : %.mp3
 	@echo $(notdir $<)
-	@bin2s -a 32 $< | $(AS) -o $(@)
+	@bin2s -a 32 $< | sed '$$a\' | $(AS) -o $(@)
 
 %.certs.o	:	%.certs
 	@echo $(notdir $<)
-	@bin2s -a 32 $< | $(AS) -o $(@)
+	@bin2s -a 32 $< | sed '$$a\' | $(AS) -o $(@)
 
 %.dat.o	:	%.dat
 	@echo $(notdir $<)
-	@bin2s -a 32 $< | $(AS) -o $(@)
+	@bin2s -a 32 $< | sed '$$a\' | $(AS) -o $(@)
 
 %.bin.o	:	%.bin
 	@echo $(notdir $<)
-	@bin2s -a 32 $< | $(AS) -o $(@)
+	@bin2s -a 32 $< | sed '$$a\' | $(AS) -o $(@)
 
 %.tik.o	:	%.tik
 	@echo $(notdir $<)
-	@bin2s -a 32 $< | $(AS) -o $(@)
+	@bin2s -a 32 $< | sed '$$a\' | $(AS) -o $(@)
 
 %.tmd.o	:	%.tmd
 	@echo $(notdir $<)
-	@bin2s -a 32 $< | $(AS) -o $(@)
+	@bin2s -a 32 $< | sed '$$a\' | $(AS) -o $(@)
 	
 %.bnr.o	:	%.bnr
 	@echo $(notdir $<)
-	@bin2s -a 32 $< | $(AS) -o $(@)
+	@bin2s -a 32 $< | sed '$$a\' | $(AS) -o $(@)
 
 export PATH		:=	$(PROJECTDIR)/gettext-bin:$(PATH)
 
