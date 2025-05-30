@@ -73,7 +73,7 @@ else
 $(error Invalid USE flag: $(USE))
 endif
 
-CFLAGS		=	$(COMMON) -Wall -Wno-multichar -Wno-unused-parameter -Wextra $(MACHDEP) $(INCLUDE) -D_GNU_SOURCE
+CFLAGS		=	$(COMMON) -Wall -Wno-multichar -Wno-unused-parameter -Wextra $(MACHDEP) $(INCLUDE) -D_GNU_SOURCE -DNO_OLD_WC_NAMES
 CXXFLAGS	=	$(CFLAGS)
 LDFLAGS		=	$(COMMON) $(MACHDEP) -Wl,-Map,$(notdir $@).map,--section-start,.init=0x80B00000,-wrap,malloc,-wrap,free,-wrap,memalign,-wrap,calloc,-wrap,realloc,-wrap,malloc_usable_size,-wrap,time
 
