@@ -179,7 +179,7 @@ INCLUDE += -Isource/libs/$(1)/include
 PATCHES_$(1) := $(shell find source/libs/_patches/$(libname) -name '*.sed')
 
 source/libs/$(1)/$(2): source/libs/$(1)/Makefile $$(PATCHES_$(1))
-	for p in $$(PATCHES_$(1)); do \
+	@for p in $$(PATCHES_$(1)); do \
 		sed -Ei -f $$$$p `echo $$$$p | sed -E -e 's/_patches\/([^/]+)\/[^/]+/\1/' -e 's/\.sed$$$$//'`; \
 	done
 	$(MAKE) -C source/libs/$(1) $(3)
