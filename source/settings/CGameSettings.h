@@ -160,7 +160,7 @@ class CGameSettings
 		//!Save
 		bool Save();
 		//!AddGame
-		bool AddGame(GameCFG & NewGame) { return AddGame(std::move(std::make_unique<GameCFG>(NewGame))); }
+		bool AddGame(GameCFG & NewGame) { return AddGame(std::make_unique<GameCFG>(NewGame)); }
 		bool AddGame(std::unique_ptr<GameCFG> NewGame);
 		//!Reset
 		bool RemoveAll();
