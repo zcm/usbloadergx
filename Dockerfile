@@ -26,8 +26,9 @@ COPY . /projectroot/
 RUN cd /projectroot && git submodule update --init
 
 ARG USE=debug
+ARG NPROC
 
-RUN cd /projectroot && make clean && make -j$(nproc) USE=$USE dist
+RUN cd /projectroot && make clean && make -j$NPROC`[ -z "$NPROC" ] && nproc` USE=$USE dist
 
 
 # Copy the DOL and ELF out of the container
