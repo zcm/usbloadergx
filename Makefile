@@ -89,7 +89,7 @@ endif
 #---------------------------------------------------------------------------------
 # any extra libraries we wish to link with the project
 #---------------------------------------------------------------------------------
-LIBS := -lwolfssl -lfat -lcustomntfs -lcustomext2fs -lvorbisidec -logg \
+LIBS := -lwolfssl -lcustomntfs -lcustomext2fs -lvorbisidec -logg \
 		-lmad -lfreetype -lgd -ljpeg -lpng -lm -lz -lwiiuse -lwiidrc \
 		-lbte -lasnd -logc
 #---------------------------------------------------------------------------------
@@ -97,8 +97,6 @@ LIBS := -lwolfssl -lfat -lcustomntfs -lcustomext2fs -lvorbisidec -logg \
 # include and lib
 #---------------------------------------------------------------------------------
 LIBDIRS	:= $(CURDIR)/portlibs
-
-SUBLIBS	:= source/libs/libfat/libogc2/lib/wii/libfat.a
 
 #---------------------------------------------------------------------------------
 # no real need to edit anything past this point unless you need to add additional
@@ -109,6 +107,7 @@ ifneq ($(BUILD),$(notdir $(CURDIR)))
 export PROJECTDIR := $(CURDIR)
 export OUTPUT	:=	$(CURDIR)/$(TARGETDIR)/$(TARGET)
 export VPATH	:=	$(foreach dir,$(SOURCES),$(CURDIR)/$(dir)) \
+					$(CURDIR)/source/libs \
 					$(foreach dir,$(DATA),$(CURDIR)/$(dir))
 export DEPSDIR	:=	$(CURDIR)/$(BUILD)
 
@@ -161,7 +160,6 @@ export INCLUDE	:=	$(foreach dir,$(INCLUDES),-I$(CURDIR)/$(dir)) \
 #---------------------------------------------------------------------------------
 export LIBPATHS	:=	$(foreach dir,$(LIBDIRS),-L$(dir)/lib) -L$(CURDIR)/source/libs/libdrc/ \
 					-L$(CURDIR)/source/libs/libext2fs \
-					-L$(CURDIR)/source/libs/libfat/libogc2/lib/wii \
 					-L$(CURDIR)/source/libs/libntfs \
 					-L$(CURDIR)/source/libs/libwolfssl -L$(LIBOGC_LIB)
 
@@ -171,71 +169,82 @@ export OUTPUT	:=	$(CURDIR)/$(TARGET)
 #---------------------------------------------------------------------------------
 $(BUILD):
 	$(MAKE) sublibs
-	@[ -d $@ ] || mkdir -p $@
-	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
+	$(SILENTCMD)[ -d $@ ] || mkdir -p $@
+	$(SILENTCMD)$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
 
+#---------------------------------------------------------------------------------
 define sublib_patch_and_make =
-INCLUDE += -Isource/libs/$(1)/include
-PATCHES_$(1) := $(shell find source/libs/_patches/$(libname) -name '*.sed')
+CFILES_$(1) := $(subst source/libs/,,$(shell find source/libs/$(1)/$(2) -name '*.c'))
+OFILES_$(1) := $$(patsubst $(1)/$(2)/%.c,$(1)/$(3)/%.o,$$(CFILES_$(1)))
 
-source/libs/$(1)/$(2): source/libs/$(1)/Makefile $$(PATCHES_$(1))
-	@for p in $$(PATCHES_$(1)); do \
+PATCHES_$(1) := $(shell find source/libs/_patches/$(1) -name '*.sed')
+
+OFILES += $$(OFILES_$(1))
+INCLUDE += -I$(CURDIR)/source/libs/$(1)/$(4)
+
+$$(OFILES_$(1)) &: $$(CFILES_$(1)) $$(subst source/libs/,,$$(PATCHES_$(1)))
+	$(SILENTCMD)for p in $$(PATCHES_$(1)); do \
 		sed -Ei -f $$$$p `echo $$$$p | sed -E -e 's/_patches\/([^/]+)\/[^/]+/\1/' -e 's/\.sed$$$$//'`; \
 	done
-	$(MAKE) -C source/libs/$(1) $(3)
+	$(MAKE) -C source/libs/$(1) $(5)
+
+SUBLIB_OFILES += $$(OFILES_$(1))
 endef
 
-$(eval $(call sublib_patch_and_make,libfat,libogc2/lib/wii/libfat.a,wii-release))
+# arguments: 1. source/libs dir, 2. input dir, 3. output dir, 4. include dir, 5. submake target
+$(eval $(call sublib_patch_and_make,libfat,source,libogc2/wii_release,include,wii-release))
 
-sublibs: $(SUBLIBS)
+sublibs: $(SUBLIB_OFILES)
 
+#---------------------------------------------------------------------------------
 channel:
-	@[ -d build ] || mkdir -p build
-	@$(MAKE) BUILDMODE=channel --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
+	$(SILENTCMD)[ -d build ] || mkdir -p build
+	$(SILENTCMD)$(MAKE) BUILDMODE=channel --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
 
 #---------------------------------------------------------------------------------
 lang:
-	@[ -d build ] || mkdir -p build
-	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile language
+	$(SILENTCMD)[ -d build ] || mkdir -p build
+	$(SILENTCMD)$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile language
 
 #---------------------------------------------------------------------------------
 theme:
-	@[ -d build ] || mkdir -p build
-	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile language
+	$(SILENTCMD)[ -d build ] || mkdir -p build
+	$(SILENTCMD)$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile language
 
 #---------------------------------------------------------------------------------
 all:
-	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
-	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile lang
+	$(SILENTCMD)$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
+	$(SILENTCMD)$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile lang
 
 #---------------------------------------------------------------------------------
 clean:
-	@echo Cleaning...
-	@rm -fr $(BUILD) $(OUTPUT).elf $(OUTPUT).dol usbloader_gx.zip usbloader_gx
+	$(SILENTCMD)echo Cleaning...
+	$(SILENTCMD)rm -fr $(BUILD) $(OUTPUT).elf $(OUTPUT).dol usbloader_gx.zip usbloader_gx
 	$(foreach sub,$(shell find source/libs -maxdepth 2 -name Makefile -exec dirname {} \;),-$(MAKE) -C $(sub) clean)
 
 #---------------------------------------------------------------------------------
 package:
+	$(SILENTCMD)echo "\nBuilding with `$(DEVKITPPC)/bin/*gcc --version | head -n1`\n"
 	$(MAKE)
-	@echo Packaging...
-	@[ -d $(PROJECTDIR)/usbloader_gx ] || mkdir -p $(PROJECTDIR)/usbloader_gx
-	@cp $(TARGET).dol $(PROJECTDIR)/usbloader_gx/
-	@cp $(PROJECTDIR)/HBC/icon.png $(PROJECTDIR)/usbloader_gx/
-	@cp $(PROJECTDIR)/HBC/meta.xml $(PROJECTDIR)/usbloader_gx/
+	$(SILENTCMD)echo Packaging...
+	$(SILENTCMD)[ -d $(PROJECTDIR)/usbloader_gx ] || mkdir -p $(PROJECTDIR)/usbloader_gx
+	$(SILENTCMD)cp $(TARGET).dol $(PROJECTDIR)/usbloader_gx/
+	$(SILENTCMD)cp $(PROJECTDIR)/HBC/icon.png $(PROJECTDIR)/usbloader_gx/
+	$(SILENTCMD)cp $(PROJECTDIR)/HBC/meta.xml $(PROJECTDIR)/usbloader_gx/
 
 #---------------------------------------------------------------------------------
 dist:
 	$(MAKE) package
-	@mkdir -p $(PROJECTDIR)/dist/apps
-	@cp -r $(PROJECTDIR)/usbloader_gx $(PROJECTDIR)/dist/apps/
-	@cd $(PROJECTDIR)/dist && zip "../usbloadergx_r`cat $(PROJECTDIR)/version.txt`" -r .
+	$(SILENTCMD)mkdir -p $(PROJECTDIR)/dist/apps
+	$(SILENTCMD)cp -r $(PROJECTDIR)/usbloader_gx $(PROJECTDIR)/dist/apps/
+	$(SILENTCMD)cd $(PROJECTDIR)/dist && zip "../usbloadergx_r`cat $(PROJECTDIR)/version.txt`" -r .
 
 #---------------------------------------------------------------------------------
 
 deploy:
 	$(MAKE) package	
-	@echo Deploying...
-	@zip usbloader_gx.zip usbloader_gx/*
+	$(SILENTCMD)echo Deploying...
+	$(SILENTCMD)zip usbloader_gx.zip usbloader_gx/*
 	wiiload usbloader_gx.zip
 
 #---------------------------------------------------------------------------------
@@ -264,78 +273,78 @@ language: $(wildcard $(PROJECTDIR)/Languages/*.lang) $(wildcard $(PROJECTDIR)/Th
 #---------------------------------------------------------------------------------
 
 %.elf.o : %.elf
-	@echo $(notdir $<)
-	@bin2s -a 32 $< | $(AS) -o $(@)
+	$(SILENTCMD)echo $(notdir $<)
+	$(SILENTCMD)bin2s -a 32 $< | sed '$$a\' | $(AS) -o $(@)
 
 %.dol.o : %.dol
-	@echo $(notdir $<)
-	@bin2s -a 32 $< | $(AS) -o $(@)
+	$(SILENTCMD)echo $(notdir $<)
+	$(SILENTCMD)bin2s -a 32 $< | sed '$$a\' | $(AS) -o $(@)
 
 %.ttf.o : %.ttf
-	@echo $(notdir $<)
-	@bin2s -a 32 $< | $(AS) -o $(@)
+	$(SILENTCMD)echo $(notdir $<)
+	$(SILENTCMD)bin2s -a 32 $< | sed '$$a\' | $(AS) -o $(@)
 
 %.png.o : %.png
-	@echo $(notdir $<)
-	@bin2s -a 32 $< | $(AS) -o $(@)
+	$(SILENTCMD)echo $(notdir $<)
+	$(SILENTCMD)bin2s -a 32 $< | sed '$$a\' | $(AS) -o $(@)
 
 %.ogg.o : %.ogg
-	@echo $(notdir $<)
-	@bin2s -a 32 $< | $(AS) -o $(@)
+	$(SILENTCMD)echo $(notdir $<)
+	$(SILENTCMD)bin2s -a 32 $< | sed '$$a\' | $(AS) -o $(@)
 
 %.pcm.o : %.pcm
-	@echo $(notdir $<)
-	@bin2s -a 32 $< | $(AS) -o $(@)
+	$(SILENTCMD)echo $(notdir $<)
+	$(SILENTCMD)bin2s -a 32 $< | sed '$$a\' | $(AS) -o $(@)
 
 %.wav.o : %.wav
-	@echo $(notdir $<)
-	@bin2s -a 32 $< | $(AS) -o $(@)
+	$(SILENTCMD)echo $(notdir $<)
+	$(SILENTCMD)bin2s -a 32 $< | sed '$$a\' | $(AS) -o $(@)
 
 %.mp3.o : %.mp3
-	@echo $(notdir $<)
-	@bin2s -a 32 $< | $(AS) -o $(@)
+	$(SILENTCMD)echo $(notdir $<)
+	$(SILENTCMD)bin2s -a 32 $< | sed '$$a\' | $(AS) -o $(@)
 
 %.certs.o	:	%.certs
-	@echo $(notdir $<)
-	@bin2s -a 32 $< | $(AS) -o $(@)
+	$(SILENTCMD)echo $(notdir $<)
+	$(SILENTCMD)bin2s -a 32 $< | sed '$$a\' | $(AS) -o $(@)
 
 %.dat.o	:	%.dat
-	@echo $(notdir $<)
-	@bin2s -a 32 $< | $(AS) -o $(@)
+	$(SILENTCMD)echo $(notdir $<)
+	$(SILENTCMD)bin2s -a 32 $< | sed '$$a\' | $(AS) -o $(@)
 
 %.bin.o	:	%.bin
-	@echo $(notdir $<)
-	@bin2s -a 32 $< | $(AS) -o $(@)
+	$(SILENTCMD)echo $(notdir $<)
+	$(SILENTCMD)bin2s -a 32 $< | sed '$$a\' | $(AS) -o $(@)
 
 %.tik.o	:	%.tik
-	@echo $(notdir $<)
-	@bin2s -a 32 $< | $(AS) -o $(@)
+	$(SILENTCMD)echo $(notdir $<)
+	$(SILENTCMD)bin2s -a 32 $< | sed '$$a\' | $(AS) -o $(@)
 
 %.tmd.o	:	%.tmd
-	@echo $(notdir $<)
-	@bin2s -a 32 $< | $(AS) -o $(@)
+	$(SILENTCMD)echo $(notdir $<)
+	$(SILENTCMD)bin2s -a 32 $< | sed '$$a\' | $(AS) -o $(@)
 	
 %.bnr.o	:	%.bnr
-	@echo $(notdir $<)
-	@bin2s -a 32 $< | $(AS) -o $(@)
+	$(SILENTCMD)echo $(notdir $<)
+	$(SILENTCMD)bin2s -a 32 $< | sed '$$a\' | $(AS) -o $(@)
 
 export PATH		:=	$(PROJECTDIR)/gettext-bin:$(PATH)
 
 %.pot: $(CFILES) $(CPPFILES)
-	@echo Updating Languagefiles ...
-	@touch $(PROJECTDIR)/Languages/$(TARGET).pot
-	@xgettext -C -cTRANSLATORS --from-code=utf-8 --sort-output --no-wrap --no-location -ktr -ktrNOOP -o$(PROJECTDIR)/Languages/$(TARGET).pot -p $@ $^
-	@echo Updating Themefiles ...
-	@touch $(PROJECTDIR)/Themes/$(TARGET).pot
-	@xgettext -C -cTRANSLATORS --from-code=utf-8 -F --no-wrap --add-location -kthInt -kthFloat -kthColor -kthAlign -o$(PROJECTDIR)/Themes/$(TARGET).pot -p $@ $^
+	$(SILENTCMD)echo Updating Languagefiles ...
+	$(SILENTCMD)touch $(PROJECTDIR)/Languages/$(TARGET).pot
+	$(SILENTCMD)xgettext -C -cTRANSLATORS --from-code=utf-8 --sort-output --no-wrap --no-location -ktr -ktrNOOP -o$(PROJECTDIR)/Languages/$(TARGET).pot -p $@ $^
+	$(SILENTCMD)echo Updating Themefiles ...
+	$(SILENTCMD)touch $(PROJECTDIR)/Themes/$(TARGET).pot
+	$(SILENTCMD)xgettext -C -cTRANSLATORS --from-code=utf-8 -F --no-wrap --add-location -kthInt -kthFloat -kthColor -kthAlign -o$(PROJECTDIR)/Themes/$(TARGET).pot -p $@ $^
 
 %.lang: $(PROJECTDIR)/Languages/$(TARGET).pot
-	@msgmerge -U -N --no-wrap --no-location --backup=none -q $@ $<
-	@touch $@
+	$(SILENTCMD)msgmerge -U -N --no-wrap --no-location --backup=none -q $@ $<
+	$(SILENTCMD)touch $@
 
 %.them: $(PROJECTDIR)/Themes/$(TARGET).pot
-	@msgmerge -U -N --no-wrap --no-location --backup=none -q $@ $<
-	@touch $@
+	$(SILENTCMD)msgmerge -U -N --no-wrap --no-location --backup=none -q $@ $<
+	$(SILENTCMD)touch $@
 
 -include $(DEPENDS)
 

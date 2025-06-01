@@ -8,14 +8,13 @@
 # { "features": { "buildkit": true } }
 # instead of the environment variable
 
-FROM devkitpro/devkitppc:20230419 as usbloader
-
-# Debian buster is no longer supported - switch to archive mirror
-RUN sed -Ei 's/\<deb.debian.org\>/archive.debian.org/g' \
-      /etc/apt/sources.list.d/buster-backports.list
+FROM devkitpro/devkitppc:20250102 as usbloader
 
 RUN apt-get update -y && \
     apt-get install -y xz-utils make git zip
+
+# Needed to avoid conflicts with the one we build ourselves
+RUN $DEVKITPRO/pacman/bin/pacman -R --noconfirm libfat-ogc
 
 RUN mkdir /projectroot
 
@@ -26,8 +25,10 @@ COPY . /projectroot/
 RUN cd /projectroot && git submodule update --init
 
 ARG USE=debug
+ARG V=0
+ARG NPROC
 
-RUN cd /projectroot && make clean && make -j$(nproc) USE=$USE dist
+RUN cd /projectroot && make clean && make -j$NPROC`[ -z "$NPROC" ] && nproc` USE=$USE V=$V dist
 
 
 # Copy the DOL and ELF out of the container
