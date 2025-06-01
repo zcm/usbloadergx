@@ -8,14 +8,13 @@
 # { "features": { "buildkit": true } }
 # instead of the environment variable
 
-FROM devkitpro/devkitppc:20230827 as usbloader
-
-# Debian buster is no longer supported - switch to archive mirror
-RUN sed -Ei 's/\<deb.debian.org\>/archive.debian.org/g' \
-      /etc/apt/sources.list.d/buster-backports.list
+FROM devkitpro/devkitppc:20240202 as usbloader
 
 RUN apt-get update -y && \
     apt-get install -y xz-utils make git zip
+
+# Needed to avoid conflicts with the one we build ourselves
+RUN $DEVKITPRO/pacman/bin/pacman -R --noconfirm libfat-ogc
 
 RUN mkdir /projectroot
 

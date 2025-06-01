@@ -89,7 +89,7 @@ endif
 #---------------------------------------------------------------------------------
 # any extra libraries we wish to link with the project
 #---------------------------------------------------------------------------------
-LIBS := -lwolfssl -lfat -lcustomntfs -lcustomext2fs -lvorbisidec -logg \
+LIBS := -lwolfssl -lcustomntfs -lcustomext2fs -lvorbisidec -logg \
 		-lmad -lfreetype -lgd -ljpeg -lpng -lm -lz -lwiiuse -lwiidrc \
 		-lbte -lasnd -logc
 #---------------------------------------------------------------------------------
@@ -97,8 +97,6 @@ LIBS := -lwolfssl -lfat -lcustomntfs -lcustomext2fs -lvorbisidec -logg \
 # include and lib
 #---------------------------------------------------------------------------------
 LIBDIRS	:= $(CURDIR)/portlibs
-
-SUBLIBS	:= source/libs/libfat/libogc2/lib/wii/libfat.a
 
 #---------------------------------------------------------------------------------
 # no real need to edit anything past this point unless you need to add additional
@@ -109,6 +107,7 @@ ifneq ($(BUILD),$(notdir $(CURDIR)))
 export PROJECTDIR := $(CURDIR)
 export OUTPUT	:=	$(CURDIR)/$(TARGETDIR)/$(TARGET)
 export VPATH	:=	$(foreach dir,$(SOURCES),$(CURDIR)/$(dir)) \
+					$(CURDIR)/source/libs \
 					$(foreach dir,$(DATA),$(CURDIR)/$(dir))
 export DEPSDIR	:=	$(CURDIR)/$(BUILD)
 
@@ -161,7 +160,6 @@ export INCLUDE	:=	$(foreach dir,$(INCLUDES),-I$(CURDIR)/$(dir)) \
 #---------------------------------------------------------------------------------
 export LIBPATHS	:=	$(foreach dir,$(LIBDIRS),-L$(dir)/lib) -L$(CURDIR)/source/libs/libdrc/ \
 					-L$(CURDIR)/source/libs/libext2fs \
-					-L$(CURDIR)/source/libs/libfat/libogc2/lib/wii \
 					-L$(CURDIR)/source/libs/libntfs \
 					-L$(CURDIR)/source/libs/libwolfssl -L$(LIBOGC_LIB)
 
@@ -174,21 +172,31 @@ $(BUILD):
 	$(SILENTCMD)[ -d $@ ] || mkdir -p $@
 	$(SILENTCMD)$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
 
+#---------------------------------------------------------------------------------
 define sublib_patch_and_make =
-INCLUDE += -Isource/libs/$(1)/include
-PATCHES_$(1) := $(shell find source/libs/_patches/$(libname) -name '*.sed')
+CFILES_$(1) := $(subst source/libs/,,$(shell find source/libs/$(1)/$(2) -name '*.c'))
+OFILES_$(1) := $$(patsubst $(1)/$(2)/%.c,$(1)/$(3)/%.o,$$(CFILES_$(1)))
 
-source/libs/$(1)/$(2): source/libs/$(1)/Makefile $$(PATCHES_$(1))
+PATCHES_$(1) := $(shell find source/libs/_patches/$(1) -name '*.sed')
+
+OFILES += $$(OFILES_$(1))
+INCLUDE += -I$(CURDIR)/source/libs/$(1)/$(4)
+
+$$(OFILES_$(1)) &: $$(CFILES_$(1)) $$(subst source/libs/,,$$(PATCHES_$(1)))
 	$(SILENTCMD)for p in $$(PATCHES_$(1)); do \
 		sed -Ei -f $$$$p `echo $$$$p | sed -E -e 's/_patches\/([^/]+)\/[^/]+/\1/' -e 's/\.sed$$$$//'`; \
 	done
-	$(MAKE) -C source/libs/$(1) $(3)
+	$(MAKE) -C source/libs/$(1) $(5)
+
+SUBLIB_OFILES += $$(OFILES_$(1))
 endef
 
-$(eval $(call sublib_patch_and_make,libfat,libogc2/lib/wii/libfat.a,wii-release))
+# arguments: 1. source/libs dir, 2. input dir, 3. output dir, 4. include dir, 5. submake target
+$(eval $(call sublib_patch_and_make,libfat,source,libogc2/wii_release,include,wii-release))
 
-sublibs: $(SUBLIBS)
+sublibs: $(SUBLIB_OFILES)
 
+#---------------------------------------------------------------------------------
 channel:
 	$(SILENTCMD)[ -d build ] || mkdir -p build
 	$(SILENTCMD)$(MAKE) BUILDMODE=channel --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
