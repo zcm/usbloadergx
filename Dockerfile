@@ -8,7 +8,7 @@
 # { "features": { "buildkit": true } }
 # instead of the environment variable
 
-FROM devkitpro/devkitppc:20240202 as usbloader
+FROM devkitpro/devkitppc:20250102 as usbloader
 
 RUN apt-get update -y && \
     apt-get install -y xz-utils make git zip
