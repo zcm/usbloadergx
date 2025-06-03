@@ -79,6 +79,7 @@ LDFLAGS		=	$(COMMON) $(MACHDEP) -Wl,-Map,$(notdir $@).map,--section-start,.init=
 
 ifeq ($(USE), release)
 	CFLAGS += -DNO_DEBUG
+	LDFLAGS := $(LDFLAGS),--strip-all,-flto=auto
 endif
 
 ifeq ($(BUILDMODE),channel)
