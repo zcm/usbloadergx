@@ -180,13 +180,15 @@ OFILES_$(1) := $$(patsubst $(1)/$(2)/%.c,$(1)/$(3)/%.o,$$(CFILES_$(1)))
 PATCHES_$(1) := $(shell find source/libs/_patches/$(1) -name '*.sed')
 
 OFILES += $$(OFILES_$(1))
-INCLUDE += -I$(CURDIR)/source/libs/$(1)/$(4)
+
+INCLUDE_$(1) := -I$(CURDIR)/source/libs/$(1)/$(4)
+INCLUDE += $$(INCLUDE_$(1))
 
 $$(OFILES_$(1)) &: $$(CFILES_$(1)) $$(subst source/libs/,,$$(PATCHES_$(1)))
 	$(SILENTCMD)for p in $$(PATCHES_$(1)); do \
 		sed -Ei -f $$$$p `echo $$$$p | sed -E -e 's/_patches\/([^/]+)\/[^/]+/\1/' -e 's/\.sed$$$$//'`; \
 	done
-	$(MAKE) -C source/libs/$(1) $(5)
+	$(MAKE) -C source/libs/$(1) CFLAGS="$(CFLAGS) $$(INCLUDE_$(1))" LDFLAGS="$(LDFLAGS)" $(5)
 
 SUBLIB_OFILES += $$(OFILES_$(1))
 endef
