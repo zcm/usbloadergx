@@ -91,13 +91,13 @@ endif
 # any extra libraries we wish to link with the project
 #---------------------------------------------------------------------------------
 LIBS := -lwolfssl -lcustomntfs -lcustomext2fs -lvorbisidec -logg \
-		-lmad -lfreetype -lgd -ljpeg -lpng -lm -lz -lwiiuse -lwiidrc \
+		-lmad -lfreetype -lbz2 -lgd -ljpeg -lpng -lm -lz -lwiiuse -lwiidrc \
 		-lbte -lasnd -logc
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing
 # include and lib
 #---------------------------------------------------------------------------------
-LIBDIRS	:= $(CURDIR)/portlibs
+LIBDIRS	:= $(CURDIR)/portlibs $(PORTLIBS)
 
 #---------------------------------------------------------------------------------
 # no real need to edit anything past this point unless you need to add additional
@@ -149,6 +149,7 @@ export OFILES	:=	$(CPPFILES:.cpp=.o) $(CFILES:.c=.o) \
 #---------------------------------------------------------------------------------
 export INCLUDE	:=	$(foreach dir,$(INCLUDES),-I$(CURDIR)/$(dir)) \
 					$(foreach dir,$(LIBDIRS),-I$(dir)/include) \
+					-I$(PORTLIBS_PATH)/ppc/include/freetype2 \
 					-I$(CURDIR)/$(BUILD) -I$(LIBOGC_INC)
 
 #---------------------------------------------------------------------------------
