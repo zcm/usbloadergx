@@ -122,16 +122,13 @@ export CFILES	:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.c)))
 export CPPFILES	:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.cpp)))
 sFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.s)))
 SFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.S)))
-ELFFILES	:=	$(foreach dir,$(DATA),$(notdir $(wildcard $(dir)/*.elf)))
-BINFILES	:=	$(foreach dir,$(DATA),$(notdir $(wildcard $(dir)/*.bin)))
-TTFFILES	:=	$(foreach dir,$(DATA),$(notdir $(wildcard $(dir)/*.ttf)))
-PNGFILES	:=	$(foreach dir,$(DATA),$(notdir $(wildcard $(dir)/*.png)))
-OGGFILES	:=	$(foreach dir,$(DATA),$(notdir $(wildcard $(dir)/*.ogg)))
-PCMFILES	:=	$(foreach dir,$(DATA),$(notdir $(wildcard $(dir)/*.pcm)))
-WAVFILES	:=	$(foreach dir,$(DATA),$(notdir $(wildcard $(dir)/*.wav)))
-DOLFILES	:=	$(foreach dir,$(DATA),$(notdir $(wildcard $(dir)/*.dol)))
-MP3FILES	:=	$(foreach dir,$(DATA),$(notdir $(wildcard $(dir)/*.mp3)))
-BNRFILES	:=	$(foreach dir,$(DATA),$(notdir $(wildcard $(dir)/*.bnr)))
+
+export BIN2S_EXTENSIONS := \
+	elf dol ttf png ogg pcm wav mp3 certs dat bin tik tmd bnr
+
+$(foreach ext,$(BIN2S_EXTENSIONS), \
+	$(eval $(ext)FILES := $(foreach dir,$(DATA),$(notdir $(wildcard $(dir)/*.$(ext))))) \
+	$(eval BIN2S_FILES += $($(ext)FILES)))
 
 #---------------------------------------------------------------------------------
 # use CXX for linking C++ projects, CC for standard C
@@ -144,10 +141,8 @@ endif
 
 export OFILES	:=	$(CPPFILES:.cpp=.o) $(CFILES:.c=.o) \
 					$(sFILES:.s=.o) $(SFILES:.S=.o) \
-					$(TTFFILES:.ttf=.ttf.o) $(PNGFILES:.png=.png.o) $(addsuffix .o,$(DOLFILES)) \
-					$(OGGFILES:.ogg=.ogg.o) $(PCMFILES:.pcm=.pcm.o) $(MP3FILES:.mp3=.mp3.o) \
-					$(WAVFILES:.wav=.wav.o) $(addsuffix .o,$(ELFFILES)) $(addsuffix .o,$(BINFILES)) \
-					$(BNRFILES:.bnr=.bnr.o) $(CURDIR)/data/magic_patcher.o
+					$(addsuffix .o,$(BIN2S_FILES)) \
+					$(CURDIR)/data/magic_patcher.o
 
 #---------------------------------------------------------------------------------
 # build a list of include paths
@@ -275,61 +270,13 @@ language: $(wildcard $(PROJECTDIR)/Languages/*.lang) $(wildcard $(PROJECTDIR)/Th
 # This rule links in binary data with .ttf, .png, and .mp3 extensions
 #---------------------------------------------------------------------------------
 
-%.elf.o : %.elf
-	$(SILENTCMD)echo $(notdir $<)
-	$(SILENTCMD)bin2s -a 32 $< | sed '$$a\' | $(AS) -o $(@)
+define bin2s_rule =
+%.$(1).o : %.$(1)
+	$(SILENTCMD)echo $$(notdir $$<)
+	$(SILENTCMD)bin2s -a 32 $$< | sed '$$$$a\' | $(AS) -o $$(@)
+endef
 
-%.dol.o : %.dol
-	$(SILENTCMD)echo $(notdir $<)
-	$(SILENTCMD)bin2s -a 32 $< | sed '$$a\' | $(AS) -o $(@)
-
-%.ttf.o : %.ttf
-	$(SILENTCMD)echo $(notdir $<)
-	$(SILENTCMD)bin2s -a 32 $< | sed '$$a\' | $(AS) -o $(@)
-
-%.png.o : %.png
-	$(SILENTCMD)echo $(notdir $<)
-	$(SILENTCMD)bin2s -a 32 $< | sed '$$a\' | $(AS) -o $(@)
-
-%.ogg.o : %.ogg
-	$(SILENTCMD)echo $(notdir $<)
-	$(SILENTCMD)bin2s -a 32 $< | sed '$$a\' | $(AS) -o $(@)
-
-%.pcm.o : %.pcm
-	$(SILENTCMD)echo $(notdir $<)
-	$(SILENTCMD)bin2s -a 32 $< | sed '$$a\' | $(AS) -o $(@)
-
-%.wav.o : %.wav
-	$(SILENTCMD)echo $(notdir $<)
-	$(SILENTCMD)bin2s -a 32 $< | sed '$$a\' | $(AS) -o $(@)
-
-%.mp3.o : %.mp3
-	$(SILENTCMD)echo $(notdir $<)
-	$(SILENTCMD)bin2s -a 32 $< | sed '$$a\' | $(AS) -o $(@)
-
-%.certs.o	:	%.certs
-	$(SILENTCMD)echo $(notdir $<)
-	$(SILENTCMD)bin2s -a 32 $< | sed '$$a\' | $(AS) -o $(@)
-
-%.dat.o	:	%.dat
-	$(SILENTCMD)echo $(notdir $<)
-	$(SILENTCMD)bin2s -a 32 $< | sed '$$a\' | $(AS) -o $(@)
-
-%.bin.o	:	%.bin
-	$(SILENTCMD)echo $(notdir $<)
-	$(SILENTCMD)bin2s -a 32 $< | sed '$$a\' | $(AS) -o $(@)
-
-%.tik.o	:	%.tik
-	$(SILENTCMD)echo $(notdir $<)
-	$(SILENTCMD)bin2s -a 32 $< | sed '$$a\' | $(AS) -o $(@)
-
-%.tmd.o	:	%.tmd
-	$(SILENTCMD)echo $(notdir $<)
-	$(SILENTCMD)bin2s -a 32 $< | sed '$$a\' | $(AS) -o $(@)
-	
-%.bnr.o	:	%.bnr
-	$(SILENTCMD)echo $(notdir $<)
-	$(SILENTCMD)bin2s -a 32 $< | sed '$$a\' | $(AS) -o $(@)
+$(foreach ext,$(BIN2S_EXTENSIONS),$(eval $(call bin2s_rule,$(ext))))
 
 export PATH		:=	$(PROJECTDIR)/gettext-bin:$(PATH)
 
