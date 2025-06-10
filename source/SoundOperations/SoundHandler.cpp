@@ -31,6 +31,7 @@
 #include "WavDecoder.hpp"
 #include "AifDecoder.hpp"
 #include "BNSDecoder.hpp"
+#include "OggOpusDecoder.hpp"
 
 SoundHandler * SoundHandler::instance = NULL;
 
@@ -167,32 +168,49 @@ SoundDecoder * SoundHandler::GetSoundDecoder(const char * filepath)
 	if(f.tell() == f.size())
 		return NULL;
 
+	SoundDecoder * ret;
+
 	f.seek(f.tell()-1, SEEK_SET);
 	f.read((u8 *) &magic, 4);
-	f.close();
 
 	if(magic == 'OggS')
 	{
-		return new OggDecoder(filepath);
+		f.seek(28, SEEK_SET);
+		f.read((u8 *) &magic, 4);
+
+		if(magic == 'Opus')
+		{
+			ret = new OggOpusDecoder(filepath);
+		}
+		else
+		{
+			ret = new OggDecoder(filepath);
+		}
 	}
 	else if(magic == 'RIFF')
 	{
-		return new WavDecoder(filepath);
+		ret = new WavDecoder(filepath);
 	}
 	else if(magic == 'BNS ')
 	{
-		return new BNSDecoder(filepath);
+		ret = new BNSDecoder(filepath);
 	}
 	else if(magic == 'FORM')
 	{
-		return new AifDecoder(filepath);
+		ret = new AifDecoder(filepath);
 	}
 	else if(CheckMP3Signature((u8 *) &magic) == true)
 	{
-		return new Mp3Decoder(filepath);
+		ret = new Mp3Decoder(filepath);
+	}
+	else
+	{
+		ret = new SoundDecoder(filepath);
 	}
 
-	return new SoundDecoder(filepath);
+	f.close();
+
+	return ret;
 }
 
 SoundDecoder * SoundHandler::GetSoundDecoder(const u8 * sound, int length)
@@ -213,6 +231,10 @@ SoundDecoder * SoundHandler::GetSoundDecoder(const u8 * sound, int length)
 
 	if(magic[0] == 'OggS')
 	{
+		if(counter + 32 < length && magic[7] == 'Opus')
+		{
+			return new OggOpusDecoder(sound, length);
+		}
 		return new OggDecoder(sound, length);
 	}
 	else if(magic[0] == 'RIFF')

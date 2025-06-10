@@ -127,6 +127,11 @@ void SoundDecoder::Decode()
 
 		if(ret <= 0)
 		{
+			if(ret == DECODE_WITH_PARTIAL_BUFFER)
+			{
+				break;
+			}
+
 			if(Loop)
 			{
 				Rewind();

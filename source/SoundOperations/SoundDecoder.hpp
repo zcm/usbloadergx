@@ -33,11 +33,14 @@
 #include "FileOperations/File.hpp"
 #include "BufferCircle.hpp"
 
+#define DECODE_WITH_PARTIAL_BUFFER (-16850321)
+
 enum
 {
 	SOUND_RAW = 0,
 	SOUND_MP3,
 	SOUND_OGG,
+	SOUND_OPUS,
 	SOUND_WAV,
 	SOUND_BNS,
 	SOUND_AIF

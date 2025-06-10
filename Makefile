@@ -90,7 +90,7 @@ endif
 #---------------------------------------------------------------------------------
 # any extra libraries we wish to link with the project
 #---------------------------------------------------------------------------------
-LIBS := -lwolfssl -lcustomntfs -lcustomext2fs -lvorbisidec -logg \
+LIBS := -lwolfssl -lcustomntfs -lcustomext2fs -lvorbisidec -logg -lopusfile -lopus \
 		-lmad -lfreetype -lbz2 -lgd -ljpeg -lpng -lm -lz -lwiiuse -lwiidrc \
 		-lbte -lasnd -logc
 #---------------------------------------------------------------------------------
@@ -124,7 +124,7 @@ sFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.s)))
 SFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.S)))
 
 export BIN2S_EXTENSIONS := \
-	elf dol ttf png ogg pcm wav mp3 certs dat bin tik tmd bnr
+	elf dol ttf png ogg opus pcm wav mp3 certs dat bin tik tmd bnr
 
 $(foreach ext,$(BIN2S_EXTENSIONS), \
 	$(eval $(ext)FILES := $(foreach dir,$(DATA),$(notdir $(wildcard $(dir)/*.$(ext))))) \
@@ -150,6 +150,7 @@ export OFILES	:=	$(CPPFILES:.cpp=.o) $(CFILES:.c=.o) \
 export INCLUDE	:=	$(foreach dir,$(INCLUDES),-I$(CURDIR)/$(dir)) \
 					$(foreach dir,$(LIBDIRS),-I$(dir)/include) \
 					-I$(PORTLIBS_PATH)/ppc/include/freetype2 \
+					-I$(PORTLIBS_PATH)/ppc/include/opus \
 					-I$(CURDIR)/$(BUILD) -I$(LIBOGC_INC)
 
 #---------------------------------------------------------------------------------

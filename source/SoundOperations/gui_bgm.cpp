@@ -106,6 +106,7 @@ bool GuiBGM::ParsePath(const char * folderpath)
 			continue;
 
 		if (strcasecmp(fileext, ".mp3") == 0 || strcasecmp(fileext, ".ogg") == 0 ||
+			strcasecmp(fileext, ".opus") == 0 ||
 			strcasecmp(fileext, ".wav") == 0 || strcasecmp(fileext, ".aif") == 0)
 		{
 			AddEntrie(filename);
