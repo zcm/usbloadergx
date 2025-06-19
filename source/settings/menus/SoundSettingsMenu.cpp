@@ -162,7 +162,6 @@ int SoundSettingsMenu::GetMenuInternal()
 		if (result)
 		{
 			bgMusic->LoadStandard();
-			bgMusic->Play();
 		}
 	}
 

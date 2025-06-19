@@ -191,7 +191,6 @@ int MainMenu(int menu)
 	bgMusic = new GuiBGM(Resources::GetFile("bg_music.ogg"), Resources::GetFileSize("bg_music.ogg"), Settings.volume);
 	bgMusic->SetLoop(Settings.musicloopmode); //loop music
 	bgMusic->Load(Settings.ogg_path);
-	bgMusic->Play();
 
 	MountGamePartition();
 
