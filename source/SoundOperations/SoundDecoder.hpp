@@ -59,7 +59,7 @@ class SoundDecoder
 		virtual int Rewind();
 		virtual int GetFormat() { return VOICE_STEREO_16BIT; };
 		virtual int GetSampleRate() { return 48000; };
-		virtual void Decode();
+		void Decode();
 		virtual u32 GetBufferSize() { return SoundBuffer.GetBufferSize(); };
 		virtual u8 * GetBuffer() { return SoundBuffer.GetBuffer(); };
 		virtual u8 * GetNextBuffer() { return SoundBuffer.GetNextBuffer(); };

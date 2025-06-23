@@ -94,11 +94,15 @@ int SoundDecoder::Read(u8 * buffer, int buffer_size, int pos)
 
 void SoundDecoder::Decode()
 {
-	if(!file_fd || ExitRequested || EndOfFile)
-		return;
+	u16 i, newWhich;
+	int done;
+	u8 * write_buf;
 
-	u16 newWhich = SoundBuffer.Which();
-	u16 i = 0;
+decode_start:
+	if(!file_fd || ExitRequested || EndOfFile)
+		goto decode_end;
+
+	newWhich = SoundBuffer.Which();
 	for (i = 0; i < SoundBuffer.Size()-2; i++)
 	{
 		if(!SoundBuffer.IsBufferReady(newWhich))
@@ -108,17 +112,16 @@ void SoundDecoder::Decode()
 	}
 
 	if(i == SoundBuffer.Size()-2)
-		return;
+		goto decode_end;
 
 	Decoding = true;
 
-	int done  = 0;
-	u8 * write_buf = SoundBuffer.GetBuffer(newWhich);
+	done = 0;
+	write_buf = SoundBuffer.GetBuffer(newWhich);
 	if(!write_buf)
 	{
 		ExitRequested = true;
-		Decoding = false;
-		return;
+		goto decode_end;
 	}
 
 	while(done < SoundBlockSize)
@@ -154,8 +157,9 @@ void SoundDecoder::Decode()
 	}
 
 	if(!SoundBuffer.IsBufferReady((newWhich+1) % SoundBuffer.Size()))
-		Decode();
+		goto decode_start;
 
+decode_end:
 	Decoding = false;
 }
 

@@ -1,4 +1,5 @@
 #include <opusfile.h>
+#include <ogc/mutex.h>
 
 #include "SoundDecoder.hpp"
 
@@ -18,4 +19,5 @@ class OggOpusDecoder : public SoundDecoder
 		OggOpusFile *opus_file;
 		int loop_start;
 		int loop_end;
+		mutex_t opus_mutex;
 };

@@ -42,6 +42,8 @@ static OpusFileCallbacks callbacks = {
 OggOpusDecoder::OggOpusDecoder(const char *filepath)
 	: SoundDecoder(filepath)
 {
+	Init();
+
 	if(!file_fd)
 		return;
 
@@ -51,6 +53,8 @@ OggOpusDecoder::OggOpusDecoder(const char *filepath)
 OggOpusDecoder::OggOpusDecoder(const u8 *snd, int len)
 	: SoundDecoder(snd, len)
 {
+	Init();
+
 	if(!file_fd)
 		return;
 
@@ -65,18 +69,15 @@ OggOpusDecoder::~OggOpusDecoder()
 
 	if(file_fd)
 		op_free(opus_file);
+
+	LWP_MutexDestroy(opus_mutex);
 }
 
 void OggOpusDecoder::Init()
 {
-	SoundDecoder::Init();
-
 	SoundType = SOUND_OPUS;
 
-	// Worst case, 120ms frame size @ 48KHz, 2 channels
-	SoundBlockSize = 11520 * sizeof(opus_int16);
-	SoundBuffer.SetBufferBlockSize(SoundBlockSize);
-	SoundBuffer.Resize(SoundBlocks);
+	LWP_MutexInit(&opus_mutex, false);
 }
 
 void OggOpusDecoder::OpenFile()
@@ -103,7 +104,10 @@ int OggOpusDecoder::Rewind()
 	if(!file_fd)
 		return -1;
 
+	LWP_MutexLock(opus_mutex);
 	int ret = op_pcm_seek(opus_file, 0);
+	LWP_MutexUnlock(opus_mutex);
+
 	CurPos = 0;
 	EndOfFile = false;
 
@@ -118,7 +122,11 @@ int OggOpusDecoder::RestartLoop()
 	CurPos = loop_start;
 	EndOfFile = false;
 
-	return op_pcm_seek(opus_file, loop_start);
+	LWP_MutexLock(opus_mutex);
+	int ret = op_pcm_seek(opus_file, loop_start);
+	LWP_MutexUnlock(opus_mutex);
+
+	return ret;
 }
 
 int OggOpusDecoder::Read(u8 *buffer, int buffer_size, int pos)
@@ -128,7 +136,9 @@ int OggOpusDecoder::Read(u8 *buffer, int buffer_size, int pos)
 
 	int max_samples = buffer_size / sizeof(opus_int16);
 
+	LWP_MutexLock(opus_mutex);
 	int read = op_read_stereo(opus_file, (opus_int16 *) buffer, max_samples);
+	LWP_MutexUnlock(opus_mutex);
 
 	if(read > 0)
 	{

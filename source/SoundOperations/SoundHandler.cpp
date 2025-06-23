@@ -42,11 +42,11 @@ SoundHandler::SoundHandler()
 	for(u32 i = 0; i < MAX_DECODERS; ++i)
 		DecoderList[i] = NULL;
 
-	ThreadStack = (u8 *) memalign(32, 32768);
+	ThreadStack = (u8 *) memalign(32, 49152);
 	if(!ThreadStack)
 		return;
 
-	LWP_CreateThread(&SoundThread, UpdateThread, this, ThreadStack, 32768, 80);
+	LWP_CreateThread(&SoundThread, UpdateThread, this, ThreadStack, 49152, 80);
 }
 
 SoundHandler::~SoundHandler()
