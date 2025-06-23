@@ -37,9 +37,14 @@ class OggDecoder : public SoundDecoder
 		int GetFormat();
 		int GetSampleRate();
 		int Rewind();
+		int RestartLoop();
 		int Read(u8 * buffer, int buffer_size, int pos);
 	protected:
 		void OpenFile();
+		void ParseComments();
+		int GetFrameSize();
 		OggVorbis_File ogg_file;
 		vorbis_info *ogg_info;
+		int loop_start;
+		int loop_end;
 };

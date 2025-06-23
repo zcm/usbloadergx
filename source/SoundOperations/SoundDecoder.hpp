@@ -57,6 +57,7 @@ class SoundDecoder
 		virtual int Tell() { return CurPos; };
 		virtual int Seek(int pos) { CurPos = pos; return file_fd->seek(CurPos, SEEK_SET); };
 		virtual int Rewind();
+		virtual int RestartLoop() { return Rewind(); };
 		virtual int GetFormat() { return VOICE_STEREO_16BIT; };
 		virtual int GetSampleRate() { return 48000; };
 		void Decode();

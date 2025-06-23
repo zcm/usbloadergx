@@ -137,7 +137,7 @@ decode_start:
 
 			if(Loop)
 			{
-				Rewind();
+				RestartLoop();
 				continue;
 			}
 			else
