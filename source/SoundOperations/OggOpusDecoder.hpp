@@ -1,9 +1,12 @@
+#pragma once
+
 #include <opusfile.h>
 #include <ogc/mutex.h>
 
 #include "SoundDecoder.hpp"
+#include "OggContainerMixin.hpp"
 
-class OggOpusDecoder : public SoundDecoder
+class OggOpusDecoder : public SoundDecoder, protected OggContainerMixin
 {
 	public:
 		OggOpusDecoder(const char * filepath);
@@ -15,9 +18,7 @@ class OggOpusDecoder : public SoundDecoder
 		int Read(u8 *buffer, int buffer_size, int pos);
 	protected:
 		void OpenFile();
-		void ParseComments();
+		void ParseOpusComments();
 		OggOpusFile *opus_file;
-		int loop_start;
-		int loop_end;
 		mutex_t opus_mutex;
 };

@@ -23,12 +23,15 @@
  *
  * for WiiXplorer 2010
  ***************************************************************************/
+#pragma once
+
 #include <tremor/ivorbiscodec.h>
 #include <tremor/ivorbisfile.h>
 
 #include "SoundDecoder.hpp"
+#include "OggContainerMixin.hpp"
 
-class OggDecoder : public SoundDecoder
+class OggDecoder : public SoundDecoder, protected OggContainerMixin
 {
 	public:
 		OggDecoder(const char * filepath);
@@ -41,10 +44,8 @@ class OggDecoder : public SoundDecoder
 		int Read(u8 * buffer, int buffer_size, int pos);
 	protected:
 		void OpenFile();
-		void ParseComments();
+		void ParseVorbisComments();
 		int GetFrameSize();
 		OggVorbis_File ogg_file;
 		vorbis_info *ogg_info;
-		int loop_start;
-		int loop_end;
 };

@@ -1,9 +1,6 @@
-#include <limits.h>
 #include <unistd.h>
 #include <malloc.h>
-#include <ctype.h>
-#include <stdlib.h>
-#include <string.h>
+
 #include "OggOpusDecoder.hpp"
 
 extern "C"
@@ -91,12 +88,16 @@ void OggOpusDecoder::OpenFile()
 
 	loop_start = loop_end = -1;
 
-	ParseComments();
+	ParseOpusComments();
 	Decode();
 }
 
-void OggOpusDecoder::ParseComments()
+void OggOpusDecoder::ParseOpusComments()
 {
+	const OpusTags *opus_tags = op_tags(opus_file, -1);
+	int total_samples = op_pcm_total(opus_file, -1);
+
+	return ParseComments(viewOf(opus_tags), total_samples, 48000, 4);
 }
 
 int OggOpusDecoder::Rewind()
