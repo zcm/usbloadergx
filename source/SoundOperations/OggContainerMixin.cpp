@@ -71,18 +71,20 @@ void OggContainerMixin::ParseComments(
 			temp_start = temp_end - temp_length;
 		}
 	}
-	else if (temp_end < 0 || temp_end > total_samples)
+	else if (total_samples > 0 && (temp_end < 0 || temp_end > total_samples))
 	{
 		temp_end = total_samples;
 	}
 
-	loop_start = temp_start > INT_MAX ? -1 : (int) (temp_start + 0.5);
-	loop_end = temp_end > INT_MAX ? -1 : (int) (temp_end + 0.5);
+	loop_start = temp_start < 0 || temp_start > INT_MAX ? -1 : (int) (temp_start + 0.5);
+	loop_end = temp_end <= 0 || temp_end > INT_MAX ? -1 : (int) (temp_end + 0.5);
 
-	if (loop_start >= 0 && loop_start < loop_end)
+	if (loop_start >= 0)
 	{
+		if (loop_start < loop_end)
+			loop_end *= frame_size;
+
 		loop_start *= frame_size;
-		loop_end *= frame_size;
 	}
 	else
 	{

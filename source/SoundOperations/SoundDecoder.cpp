@@ -130,7 +130,7 @@ decode_start:
 
 		if(ret <= 0)
 		{
-			if(ret == DECODE_WITH_PARTIAL_BUFFER)
+			if(ret == DECODE_WITH_PARTIAL_BUFFER && done > 0)
 			{
 				break;
 			}

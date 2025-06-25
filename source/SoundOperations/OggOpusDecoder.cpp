@@ -3,6 +3,9 @@
 
 #include "OggOpusDecoder.hpp"
 
+#define OPUS_STEREO_FRAME_SIZE (2 * sizeof (opus_int16))
+#define OPUS_PREROLL_SAMPLES 3840  /* 80ms, not 120ms but good enough */
+
 extern "C"
 {
 
@@ -95,9 +98,8 @@ void OggOpusDecoder::OpenFile()
 void OggOpusDecoder::ParseOpusComments()
 {
 	const OpusTags *opus_tags = op_tags(opus_file, -1);
-	int total_samples = op_pcm_total(opus_file, -1);
 
-	return ParseComments(viewOf(opus_tags), total_samples, 48000, 4);
+	return ParseComments(viewOf(opus_tags), -1, 48000, OPUS_STEREO_FRAME_SIZE);
 }
 
 int OggOpusDecoder::Rewind()
@@ -120,12 +122,41 @@ int OggOpusDecoder::RestartLoop()
 	if (loop_start < 0)
 		return Rewind();
 
+	LWP_MutexLock(opus_mutex);
+	int ret = UnsafeRestartLoop();
+	LWP_MutexUnlock(opus_mutex);
+
+	return ret;
+}
+
+int OggOpusDecoder::UnsafeRestartLoop()
+{
 	CurPos = loop_start;
 	EndOfFile = false;
 
-	LWP_MutexLock(opus_mutex);
-	int ret = op_pcm_seek(opus_file, loop_start);
-	LWP_MutexUnlock(opus_mutex);
+	return SeekWithPreroll(loop_start / OPUS_STEREO_FRAME_SIZE);
+}
+
+int OggOpusDecoder::SeekWithPreroll(ogg_int64_t pcm_offset)
+{
+	ogg_int64_t preroll = pcm_offset <= OPUS_PREROLL_SAMPLES ? 0 : pcm_offset - OPUS_PREROLL_SAMPLES;
+
+	int ret = op_pcm_seek(opus_file, preroll);
+
+	if (ret < 0)
+		return ret;
+
+	opus_int16 temp[1024];
+
+	while (preroll < pcm_offset)
+	{
+		int read = op_read_stereo(opus_file, temp, sizeof (temp) / 2);
+
+		if (read <= 0)
+			return read;
+
+		preroll += read;
+	}
 
 	return ret;
 }
@@ -138,19 +169,19 @@ int OggOpusDecoder::Read(u8 *buffer, int buffer_size, int pos)
 	int max_samples = buffer_size / sizeof(opus_int16);
 
 	LWP_MutexLock(opus_mutex);
+
 	int read = op_read_stereo(opus_file, (opus_int16 *) buffer, max_samples);
-	LWP_MutexUnlock(opus_mutex);
 
 	if(read > 0)
 	{
-		read *= 2 * sizeof(opus_int16);
+		read *= OPUS_STEREO_FRAME_SIZE;
 
 		if (Loop && loop_start >= 0 && CurPos + read >= loop_end)
 		{
 			if (CurPos < loop_end)
 			{
 				read = loop_end - CurPos;
-				RestartLoop();
+				UnsafeRestartLoop();
 			}
 			else
 			{
@@ -164,8 +195,13 @@ int OggOpusDecoder::Read(u8 *buffer, int buffer_size, int pos)
 	}
 	else if (read == 0 && CurPos < op_pcm_total(opus_file, -1) * sizeof(opus_int16))
 	{
-		return DECODE_WITH_PARTIAL_BUFFER;
+		read = DECODE_WITH_PARTIAL_BUFFER;
 	}
+
+	LWP_MutexUnlock(opus_mutex);
 
 	return read;
 }
+
+#undef OPUS_STEREO_FRAME_SIZE
+#undef OPUS_PREROLL_SAMPLES

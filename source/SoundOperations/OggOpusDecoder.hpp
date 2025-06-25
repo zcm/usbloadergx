@@ -19,6 +19,8 @@ class OggOpusDecoder : public SoundDecoder, protected OggContainerMixin
 	protected:
 		void OpenFile();
 		void ParseOpusComments();
+		int UnsafeRestartLoop();
+		int SeekWithPreroll(ogg_int64_t pcm_offset);
 		OggOpusFile *opus_file;
 		mutex_t opus_mutex;
 };
